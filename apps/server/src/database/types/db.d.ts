@@ -759,9 +759,28 @@ export interface OauthTokens {
   workspaceId: string;
 }
 
+export interface AiSettings {
+  workspaceId: string;
+  provider: string;
+  authMode: Generated<string>;
+  apiKey: string | null;
+  baseUrl: string | null;
+  chatModel: string | null;
+  embeddingProvider: string | null;
+  embeddingAuthMode: string | null;
+  embeddingApiKey: string | null;
+  embeddingBaseUrl: string | null;
+  embeddingModel: string | null;
+  embeddingDimensions: number | null;
+  updatedById: string | null;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
+}
+
 export interface DB {
   aiChats: AiChats;
   aiChatMessages: AiChatMessages;
+  aiSettings: AiSettings;
   apiKeys: ApiKeys;
   attachments: Attachments;
   audit: Audit;

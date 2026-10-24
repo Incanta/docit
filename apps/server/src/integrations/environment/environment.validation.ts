@@ -105,7 +105,7 @@ export class EnvironmentVariables {
 
   @IsOptional()
   @ValidateIf((obj) => obj.AI_DRIVER)
-  @IsIn(['openai', 'openai-compatible', 'gemini', 'ollama'])
+  @IsIn(['openai', 'openai-compatible', 'gemini', 'ollama', 'anthropic'])
   @IsString()
   AI_DRIVER: string;
 

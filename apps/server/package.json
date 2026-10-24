@@ -30,6 +30,7 @@
     "test:e2e": "jest --config test/jest-e2e.json"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "3.0.118",
     "@ai-sdk/google": "3.0.123",
     "@ai-sdk/openai": "3.0.113",
     "@ai-sdk/openai-compatible": "2.0.75",

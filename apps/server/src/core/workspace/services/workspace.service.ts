@@ -37,7 +37,6 @@ import {
   generateRandomSuffixNumbers,
   diffAuditTrackedFields,
 } from '../../../common/helpers';
-import { isPageEmbeddingsTableExists } from '@docmost/db/helpers/helpers';
 import { CursorPaginationResult } from '@docmost/db/pagination/cursor-pagination';
 import { ShareRepo } from '@docmost/db/repos/share/share.repo';
 import { PublicSpaceRepo } from '@docmost/db/repos/public-space/public-space.repo';
@@ -358,17 +357,8 @@ export class WorkspaceService {
       throw new ForbiddenException('This setting is not available');
     }
 
-    if (
-      updateWorkspaceDto.aiSearch &&
-      this.environmentService.getAiVectorDriver() !== 'turbopuffer'
-    ) {
-      const tableExists = await isPageEmbeddingsTableExists(this.db);
-      if (!tableExists) {
-        throw new BadRequestException(
-          'Failed to activate. Make sure pgvector postgres extension is installed.',
-        );
-      }
-    }
+    // DocIt: AI search works without pgvector by falling back to keyword
+    // retrieval, so enabling it no longer requires the embeddings table.
 
     const workspaceBefore = await this.workspaceRepo.findById(workspaceId);
     const settingsBefore = (workspaceBefore?.settings ?? {}) as Record<

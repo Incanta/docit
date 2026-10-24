@@ -38,6 +38,7 @@ import {
   FileTasks,
   UserMfa as _UserMFA,
   UserSessions,
+  AiSettings as _AiSettings,
   ApiKeys,
   ScimTokens,
   SiemDestinations,
@@ -294,3 +295,8 @@ export type UpdatableBaseView = Updateable<Omit<BaseViews, 'id'>>;
 export type SiemDestination = Selectable<SiemDestinations>;
 export type InsertableSiemDestination = Insertable<SiemDestinations>;
 export type UpdatableSiemDestination = Updateable<Omit<SiemDestinations, 'id'>>;
+
+// AI settings (DocIt)
+export type AiSettings = Selectable<_AiSettings>;
+export type InsertableAiSettings = Insertable<_AiSettings>;
+export type UpdatableAiSettings = Updateable<Omit<_AiSettings, 'workspaceId'>>;

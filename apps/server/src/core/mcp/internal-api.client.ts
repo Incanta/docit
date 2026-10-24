@@ -75,4 +75,35 @@ export class InternalApiClient {
     // Successful responses are wrapped as { data, success, status }.
     return (parsed?.data ?? parsed) as T;
   }
+
+  /** POST and return the raw response body (for streaming endpoints). */
+  async postRaw(
+    auth: ForwardedAuth,
+    path: string,
+    body: Record<string, unknown> = {},
+  ): Promise<string> {
+    const headers: Record<string, string> = {
+      'content-type': 'application/json',
+    };
+    if (auth.authorization) headers.authorization = auth.authorization;
+    if (auth.cookie) headers.cookie = auth.cookie;
+    if (auth.host) headers.host = auth.host;
+    const res = await this.fastify.inject({
+      method: 'POST',
+      url: `/api${path}`,
+      headers,
+      payload: JSON.stringify(body),
+      remoteAddress: auth.remoteAddress,
+    });
+    if (res.statusCode >= 400) {
+      let message = `Request failed (${res.statusCode})`;
+      try {
+        message = JSON.parse(res.body)?.message ?? message;
+      } catch {
+        /* keep default */
+      }
+      throw new InternalApiError(res.statusCode, message);
+    }
+    return res.body;
+  }
 }

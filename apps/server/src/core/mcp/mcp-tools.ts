@@ -255,6 +255,42 @@ export const MCP_TOOLS: McpToolDefinition[] = [
     },
   },
   {
+    name: 'ask_knowledge_base',
+    title: 'Ask the knowledge base',
+    description:
+      'Ask a question and get an AI answer grounded in pages the user can read, with numbered sources. Requires AI answers to be enabled.',
+    scope: 'ai:read',
+    readOnly: true,
+    inputSchema: z.object({
+      question: z.string().min(1).max(2000),
+      spaceId: z.string().uuid().optional(),
+    }),
+    run: async (ctx, { question, spaceId }) => {
+      const body = await ctx.api.postRaw(ctx.auth, '/ai/ask', {
+        question,
+        spaceId,
+      });
+      let answer = '';
+      let sources: any[] = [];
+      for (const line of body.split('\n')) {
+        if (!line.trim()) continue;
+        const event = JSON.parse(line);
+        if (event.type === 'sources') sources = event.sources;
+        if (event.type === 'text') answer += event.delta;
+        if (event.type === 'error') throw new Error(event.message);
+      }
+      return {
+        answer,
+        sources: sources.map((s) => ({
+          index: s.index,
+          title: s.title,
+          url: s.url,
+          pageId: s.pageId,
+        })),
+      };
+    },
+  },
+  {
     name: 'list_comments',
     title: 'List comments',
     description: 'List comment threads on a page, as Markdown.',

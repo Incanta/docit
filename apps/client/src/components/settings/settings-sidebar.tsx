@@ -12,6 +12,7 @@ import {
   IconPlug,
   IconHistory,
   IconKey,
+  IconSparkles,
 } from "@tabler/icons-react";
 import { Link, useLocation } from "react-router-dom";
 import classes from "./settings.module.css";
@@ -86,6 +87,12 @@ const groupedData: DataGroup[] = [
         label: "API keys",
         icon: IconKey,
         path: "/settings/api-keys",
+      },
+      {
+        label: "AI",
+        icon: IconSparkles,
+        path: "/settings/ai",
+        role: "admin",
       },
     ],
   },

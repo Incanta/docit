@@ -58,6 +58,7 @@ const EXTRA_ROUTE_SCOPES: Record<string, ApiKeyScope> = {
   'POST /ai/generate': 'ai:write',
   'POST /ai/generate/stream': 'ai:write',
   'POST /ai/ask': 'ai:read',
+  'POST /ai/status': 'ai:read',
 };
 
 /** Controller paths that differ from the resource name. */
