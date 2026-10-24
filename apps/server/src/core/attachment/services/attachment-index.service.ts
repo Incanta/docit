@@ -52,8 +52,10 @@ export async function extractAttachmentText(
 }
 
 function normalizeText(text: string): string {
+  // Postgres text columns reject NUL bytes, which some PDFs contain.
   return text
-    .replace(/\u0000/g, '')
+    .split(String.fromCharCode(0))
+    .join('')
     .replace(/[ \t]+/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .trim()
