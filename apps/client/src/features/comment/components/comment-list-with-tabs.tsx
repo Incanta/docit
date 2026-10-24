@@ -134,6 +134,7 @@ function CommentListWithTabs() {
             comment={comment}
             pageId={page?.id}
             canComment={canComment}
+            canEditPage={page?.permissions?.canEdit ?? false}
             userSpaceRole={space?.membership?.role}
           />
           <MemoizedChildComments
@@ -157,7 +158,7 @@ function CommentListWithTabs() {
         )}
       </Paper>
     ),
-    [comments, handleAddReply, isLoading, space?.membership?.role, canComment],
+    [comments, handleAddReply, isLoading, space?.membership?.role, canComment, page?.permissions?.canEdit],
   );
 
   if (isCommentsLoading) {

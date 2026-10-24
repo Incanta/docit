@@ -1,5 +1,12 @@
 import { ActionIcon, Menu } from "@mantine/core";
-import { IconDots, IconEdit, IconLink, IconTrash } from "@tabler/icons-react";
+import {
+  IconCircleCheck,
+  IconDots,
+  IconEdit,
+  IconLink,
+  IconRefresh,
+  IconTrash,
+} from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { useTranslation } from "react-i18next";
@@ -12,6 +19,8 @@ type CommentMenuProps = {
   onDeleteComment: () => void;
   canEdit?: boolean;
   canManage?: boolean;
+  onToggleResolved?: () => void;
+  isResolved?: boolean;
 };
 
 function CommentMenu({
@@ -20,6 +29,8 @@ function CommentMenu({
   onDeleteComment,
   canEdit = true,
   canManage = false,
+  onToggleResolved,
+  isResolved = false,
 }: CommentMenuProps) {
   const { t } = useTranslation();
   const clipboard = useClipboard({ timeout: 500 });
@@ -59,6 +70,20 @@ function CommentMenu({
             leftSection={<IconEdit size={14} />}
           >
             {t("Edit comment")}
+          </Menu.Item>
+        )}
+        {onToggleResolved && (
+          <Menu.Item
+            onClick={onToggleResolved}
+            leftSection={
+              isResolved ? (
+                <IconRefresh size={14} />
+              ) : (
+                <IconCircleCheck size={14} />
+              )
+            }
+          >
+            {isResolved ? t("Re-open comment") : t("Resolve comment")}
           </Menu.Item>
         )}
         <Menu.Item

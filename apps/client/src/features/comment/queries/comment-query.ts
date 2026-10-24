@@ -8,11 +8,13 @@ import {
   createComment,
   deleteComment,
   getPageComments,
+  resolveComment,
   updateComment,
 } from "@/features/comment/services/comment-service";
 import {
   ICommentParams,
   IComment,
+  IResolveComment,
 } from "@/features/comment/types/comment.types";
 import { notifications } from "@mantine/notifications";
 import { IPagination } from "@/lib/types.ts";
@@ -152,6 +154,45 @@ export function useDeleteCommentMutation(pageId?: string) {
     onError: () => {
       notifications.show({
         message: t("Failed to delete comment"),
+        color: "red",
+      });
+    },
+  });
+}
+
+export function useResolveCommentMutation() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation<IComment, Error, IResolveComment>({
+    mutationFn: (data) => resolveComment(data),
+    onSuccess: (updated, variables) => {
+      const key = RQ_KEY(variables.pageId);
+      const cache = queryClient.getQueryData(key) as
+        | InfiniteData<IPagination<IComment>>
+        | undefined;
+
+      if (cache) {
+        queryClient.setQueryData(key, {
+          ...cache,
+          pages: cache.pages.map((page) => ({
+            ...page,
+            items: page.items.map((comment) =>
+              comment.id === updated.id ? updated : comment,
+            ),
+          })),
+        });
+      }
+
+      notifications.show({
+        message: variables.resolved
+          ? t("Comment resolved successfully")
+          : t("Comment re-opened successfully"),
+      });
+    },
+    onError: () => {
+      notifications.show({
+        message: t("Failed to resolve comment"),
         color: "red",
       });
     },

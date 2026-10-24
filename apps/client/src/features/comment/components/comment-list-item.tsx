@@ -1,4 +1,5 @@
-import { Group, Text, Box, Badge } from "@mantine/core";
+import { Group, Text, Box, ActionIcon, Tooltip } from "@mantine/core";
+import { IconCircleCheck, IconCircleCheckFilled } from "@tabler/icons-react";
 import React, { useEffect, useRef, useState } from "react";
 import classes from "./comment.module.css";
 import { useAtom, useAtomValue } from "jotai";
@@ -12,6 +13,7 @@ import CommentMenu from "@/features/comment/components/comment-menu";
 import { useHover } from "@mantine/hooks";
 import {
   useDeleteCommentMutation,
+  useResolveCommentMutation,
   useUpdateCommentMutation,
 } from "@/features/comment/queries/comment-query";
 import { IComment } from "@/features/comment/types/comment.types";
@@ -23,6 +25,7 @@ interface CommentListItemProps {
   comment: IComment;
   pageId: string;
   canComment: boolean;
+  canEditPage?: boolean;
   userSpaceRole?: string;
 }
 
@@ -30,6 +33,7 @@ function CommentListItem({
   comment,
   pageId,
   canComment,
+  canEditPage = false,
   userSpaceRole,
 }: CommentListItemProps) {
   const { t } = useTranslation();
@@ -41,6 +45,7 @@ function CommentListItem({
   const editContentRef = useRef<any>(null);
   const updateCommentMutation = useUpdateCommentMutation();
   const deleteCommentMutation = useDeleteCommentMutation(comment.pageId);
+  const resolveCommentMutation = useResolveCommentMutation();
   const [currentUser] = useAtom(currentUserAtom);
   const createdAtAgo = useTimeAgo(comment.createdAt);
 
@@ -76,6 +81,27 @@ function CommentListItem({
       }
     } catch (error) {
       console.error("Failed to delete comment:", error);
+    }
+  }
+
+  const isResolved = !!comment.resolvedAt;
+  const isOwn = currentUser?.user?.id === comment.creatorId;
+  // Editors can resolve any thread; commenters only their own.
+  const canResolve =
+    !comment.parentCommentId && canComment && (isOwn || canEditPage);
+
+  async function handleToggleResolved() {
+    try {
+      await resolveCommentMutation.mutateAsync({
+        commentId: comment.id,
+        pageId: comment.pageId,
+        resolved: !isResolved,
+      });
+      if (isEditorReady(editor)) {
+        editor.commands.setCommentResolved(comment.id, !isResolved);
+      }
+    } catch (error) {
+      console.error("Failed to change comment resolution:", error);
     }
   }
 
@@ -116,7 +142,35 @@ function CommentListItem({
               {comment.creator.name}
             </Text>
 
-            <div style={{ visibility: hovered ? "visible" : "hidden" }}>
+            <Group
+              gap={4}
+              wrap="nowrap"
+              style={{ visibility: hovered ? "visible" : "hidden" }}
+            >
+              {canResolve && (
+                <Tooltip
+                  label={
+                    isResolved ? t("Re-open comment") : t("Resolve comment")
+                  }
+                  withArrow
+                >
+                  <ActionIcon
+                    variant="default"
+                    style={{ border: "none" }}
+                    onClick={handleToggleResolved}
+                    loading={resolveCommentMutation.isPending}
+                    aria-label={
+                      isResolved ? t("Re-open comment") : t("Resolve comment")
+                    }
+                  >
+                    {isResolved ? (
+                      <IconCircleCheckFilled size={18} color="var(--mantine-color-green-6)" />
+                    ) : (
+                      <IconCircleCheck size={18} />
+                    )}
+                  </ActionIcon>
+                </Tooltip>
+              )}
               <CommentMenu
                 commentId={comment.id}
                 onEditComment={handleEditToggle}
@@ -126,14 +180,21 @@ function CommentListItem({
                   currentUser?.user?.id === comment.creatorId ||
                   userSpaceRole === "admin"
                 }
+                onToggleResolved={canResolve ? handleToggleResolved : undefined}
+                isResolved={isResolved}
               />
-            </div>
+            </Group>
           </Group>
 
           <Group gap="xs">
             <Text size="xs" fw={500} c="dimmed">
               {createdAtAgo}
             </Text>
+            {isResolved && comment.resolvedBy && (
+              <Text size="xs" c="dimmed">
+                {t("Resolved by {{name}}", { name: comment.resolvedBy.name })}
+              </Text>
+            )}
           </Group>
         </div>
       </Group>
