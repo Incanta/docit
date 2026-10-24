@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
 import * as oidc from 'openid-client';
+import { safeRedirect } from './sso.utils';
 import { SsoRepo } from '@docmost/db/repos/sso/sso.repo';
 import { UserRepo } from '@docmost/db/repos/user/user.repo';
 import { GroupRepo } from '@docmost/db/repos/group/group.repo';
@@ -51,15 +52,6 @@ type StatePayload = {
 
 export function providerSettings(p: AuthProvider): OidcProviderSettings {
   return (p.settings as OidcProviderSettings) ?? {};
-}
-
-/** Only allow relative in-app redirects after login. */
-export function safeRedirect(value: unknown): string {
-  if (typeof value !== 'string') return '/home';
-  if (!value.startsWith('/') || value.startsWith('//') || value.startsWith('/\\')) {
-    return '/home';
-  }
-  return value;
 }
 
 @Injectable()

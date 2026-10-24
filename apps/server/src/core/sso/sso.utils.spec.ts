@@ -1,4 +1,4 @@
-import { safeRedirect } from './oidc.service';
+import { safeRedirect } from './sso.utils';
 
 describe('safeRedirect', () => {
   it('keeps in-app paths', () => {
