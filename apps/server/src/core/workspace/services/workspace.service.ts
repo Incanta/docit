@@ -343,7 +343,6 @@ export class WorkspaceService {
     // These settings belong to features that are not part of DocIt.
     const unavailableSettings = [
       'trashRetentionDays',
-      'mcpEnabled',
       'allowMemberTemplates',
       'isScimEnabled',
       'allowPersonalSpaces',

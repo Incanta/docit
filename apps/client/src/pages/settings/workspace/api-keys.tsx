@@ -19,6 +19,7 @@ import { workspaceAtom } from "@/features/user/atoms/current-user-atom.ts";
 import { updateWorkspace } from "@/features/workspace/services/workspace-service.ts";
 import { useApiKeysQuery } from "@/features/api-key/queries/api-key-query.ts";
 import ApiKeyTable from "@/features/api-key/components/api-key-table.tsx";
+import McpSettings from "@/features/api-key/components/mcp-settings.tsx";
 import CreateApiKeyModal from "@/features/api-key/components/create-api-key-modal.tsx";
 
 function RestrictToAdminsToggle() {
@@ -89,6 +90,9 @@ export default function ApiKeys() {
           <Divider my="lg" />
         </>
       )}
+
+      <McpSettings />
+      <Divider my="lg" />
 
       <Group justify="space-between" mb="md">
         {isAdmin ? (

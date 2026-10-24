@@ -1628,5 +1628,11 @@
   "My keys": "My keys",
   "All keys": "All keys",
   "API keys are restricted to workspace admins.": "API keys are restricted to workspace admins.",
-  "Users": "Users"
+  "Users": "Users",
+  "MCP server": "MCP server",
+  "Let AI tools such as Claude, Cursor, or VS Code read and edit pages through the Model Context Protocol, authenticated with an API key.": "Let AI tools such as Claude, Cursor, or VS Code read and edit pages through the Model Context Protocol, authenticated with an API key.",
+  "Toggle MCP server": "Toggle MCP server",
+  "Endpoint": "Endpoint",
+  "Tools are limited to the scopes of the API key used to connect. Claude Code:": "Tools are limited to the scopes of the API key used to connect. Claude Code:",
+  "Other clients (JSON config):": "Other clients (JSON config):"
 }

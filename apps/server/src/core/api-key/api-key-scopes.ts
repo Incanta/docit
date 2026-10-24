@@ -81,12 +81,21 @@ function routeKey(ctx: ExecutionContext): string | undefined {
   return `${req.method} ${path}`;
 }
 
-/** The scope a request needs, or undefined if API keys may not call it. */
+/**
+ * Routes any valid key may call. The MCP endpoint checks scopes per tool.
+ */
+const ANY_SCOPE_ROUTES = new Set(['POST /mcp', 'GET /mcp', 'DELETE /mcp']);
+
+/**
+ * The scope a request needs, `'any'` when every key may call it, or
+ * undefined if API keys may not call it at all.
+ */
 export function requiredScopeFor(
   reflector: Reflector,
   ctx: ExecutionContext,
-): ApiKeyScope | undefined {
+): ApiKeyScope | 'any' | undefined {
   const key = routeKey(ctx);
+  if (key && ANY_SCOPE_ROUTES.has(key)) return 'any';
   if (key && EXTRA_ROUTE_SCOPES[key]) return EXTRA_ROUTE_SCOPES[key];
 
   const access = reflector.getAllAndOverride<OAuthRouteScope | undefined>(
@@ -107,9 +116,9 @@ export function requiredScopeFor(
 /** NULL scopes are legacy keys with full access. */
 export function hasScope(
   granted: string[] | null | undefined,
-  required: ApiKeyScope,
+  required: ApiKeyScope | 'any',
 ): boolean {
-  if (!granted) return true;
+  if (!granted || required === 'any') return true;
   if (granted.includes(required)) return true;
   const [resource, access] = required.split(':');
   return access === 'read' && granted.includes(`${resource}:write`);
