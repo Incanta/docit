@@ -31,7 +31,12 @@ import {
   IconMoodSmile,
   IconRotate2,
   IconSuperscript,
+  IconSparkles,
 } from "@tabler/icons-react";
+import {
+  isEditorAiAvailable,
+  openEditorAiMenu,
+} from "@/features/ai/components/editor-ai-bridge.ts";
 import {
   CommandProps,
   SlashMenuGroupedItemsType,
@@ -63,6 +68,17 @@ import {
 
 const CommandGroups: SlashMenuGroupedItemsType = {
   basic: [
+    {
+      title: "Ask AI",
+      description: "Write or edit with AI.",
+      searchTerms: ["ai", "generate", "write", "assistant"],
+      icon: IconSparkles,
+      disable: () => !isEditorAiAvailable(),
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).run();
+        openEditorAiMenu();
+      },
+    },
     {
       title: "Text",
       description: "Just start typing with plain text.",

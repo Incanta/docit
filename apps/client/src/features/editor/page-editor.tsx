@@ -47,6 +47,7 @@ import {
 } from "@/features/comment/atoms/comment-atom";
 import CommentDialog from "@/features/comment/components/comment-dialog";
 import { EditorBubbleMenu } from "@/features/editor/components/bubble-menu/bubble-menu";
+import { EditorAiMenu } from "@/features/ai/components/editor-ai-menu.tsx";
 import { ReadonlyBubbleMenu } from "@/features/editor/components/bubble-menu/readonly-bubble-menu";
 import TableMenu from "@/features/editor/components/table/table-menu.tsx";
 import { TableHandlesLayer } from "@/features/editor/components/table/handle/table-handles-layer";
@@ -514,6 +515,7 @@ function CollabPageEditor({
           <div>
             <EditorLinkMenu editor={editor} />
             <EditorBubbleMenu editor={editor} />
+            <EditorAiMenu editor={editor} pageId={pageId} />
             <TableMenu editor={editor} />
             <TableHandlesLayer editor={editor} />
             <ImageMenu editor={editor} />
