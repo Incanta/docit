@@ -18,6 +18,7 @@ import {
   SpaceCaslSubject,
 } from '../casl/interfaces/space-ability.type';
 import { AttachmentSearchService } from './attachment-search.service';
+import { TypesenseSearchService } from './typesense/typesense-search.service';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { QueueJob, QueueName } from '../../integrations/queue/constants';
@@ -49,6 +50,7 @@ export class AttachmentSearchDto {
 export class AttachmentSearchController {
   constructor(
     private readonly attachmentSearch: AttachmentSearchService,
+    private readonly typesenseSearch: TypesenseSearchService,
     private readonly spaceAbility: SpaceAbilityFactory,
     private readonly workspaceAbility: WorkspaceAbilityFactory,
     @InjectQueue(QueueName.ATTACHMENT_QUEUE)
@@ -100,6 +102,9 @@ export class AttachmentSearchController {
       userId: user.id,
       workspaceId: workspace.id,
     };
+    if (this.typesenseSearch.enabled) {
+      return this.typesenseSearch.searchAttachments(opts);
+    }
     return this.attachmentSearch.search(opts);
   }
 }

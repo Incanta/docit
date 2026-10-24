@@ -28,6 +28,7 @@ import { AuthUser } from '../../common/decorators/auth-user.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
 import { PublicSpaceService } from '../public-space/public-space.service';
 import { PageRepo } from '@docmost/db/repos/page/page.repo';
+import { TypesenseSearchService } from './typesense/typesense-search.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('search')
@@ -37,6 +38,7 @@ export class SearchController {
     private readonly spaceAbility: SpaceAbilityFactory,
     private readonly publicSpaceService: PublicSpaceService,
     private readonly pageRepo: PageRepo,
+    private readonly typesenseSearch: TypesenseSearchService,
   ) {}
 
   @HttpCode(HttpStatus.OK)
@@ -60,6 +62,14 @@ export class SearchController {
       }
     }
 
+    // DocIt: Typesense serves member search; share and public-space search
+    // stay on Postgres, which already scopes them to a few pages.
+    if (this.typesenseSearch.enabled) {
+      return this.typesenseSearch.searchPage(searchDto, {
+        userId: user.id,
+        workspaceId: workspace.id,
+      });
+    }
 
     return this.searchService.searchPage(searchDto, {
       userId: user.id,
