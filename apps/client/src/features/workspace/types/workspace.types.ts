@@ -110,6 +110,8 @@ export interface IPublicWorkspace {
   name: string;
   logo: string;
   hostname: string;
+  enforceSso?: boolean;
+  authProviders?: { id: string; name: string; type: string }[];
 }
 
 export interface IVersion {

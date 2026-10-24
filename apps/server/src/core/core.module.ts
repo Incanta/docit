@@ -30,6 +30,7 @@ import { FavoriteModule } from './favorite/favorite.module';
 import { SessionModule } from './session/session.module';
 import { McpModule } from './mcp/mcp.module';
 import { AiModule } from './ai/ai.module';
+import { SsoModule } from './sso/sso.module';
 import { ClsMiddleware } from 'nestjs-cls';
 
 @Module({
@@ -58,6 +59,7 @@ import { ClsMiddleware } from 'nestjs-cls';
     SessionModule,
     McpModule,
     AiModule,
+    SsoModule,
   ],
 })
 export class CoreModule implements NestModule {

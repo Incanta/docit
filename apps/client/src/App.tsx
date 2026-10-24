@@ -56,6 +56,7 @@ const LabelPage = lazyWithPrefetch(() => import("@/pages/label/label-page"));
 const AuditLogs = lazyWithPrefetch(() => import("@/pages/settings/workspace/audit-logs.tsx"));
 const ApiKeys = lazyWithPrefetch(() => import("@/pages/settings/workspace/api-keys.tsx"));
 const AiSettings = lazyWithPrefetch(() => import("@/pages/settings/workspace/ai-settings.tsx"));
+const Sso = lazyWithPrefetch(() => import("@/pages/settings/workspace/sso.tsx"));
 const Integrations = lazyWithPrefetch(
   () => import("@/features/integration/pages/integrations.tsx"),
 );
@@ -141,6 +142,7 @@ export default function App() {
             <Route path={"spaces"} element={<Spaces />} />
             <Route path={"sharing"} element={<Shares />} />
             <Route path={"integrations"} element={<Integrations />} />
+            <Route path={"sso"} element={<Sso />} />
             <Route path={"ai"} element={<AiSettings />} />
             <Route path={"api-keys"} element={<ApiKeys />} />
             <Route path={"audit"} element={<AuditLogs />} />

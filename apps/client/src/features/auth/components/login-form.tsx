@@ -21,6 +21,7 @@ import { useWorkspacePublicDataQuery } from "@/features/workspace/queries/worksp
 import { Error404 } from "@/components/ui/error-404.tsx";
 import React from "react";
 import { AuthLayout } from "./auth-layout.tsx";
+import { SsoLoginButtons } from "./sso-login-buttons.tsx";
 
 const formSchema = z.object({
   email: z
@@ -35,10 +36,15 @@ export function LoginForm() {
   const { signIn, isLoading } = useAuth();
   useRedirectIfAuthenticated();
   const {
+    data: publicWorkspace,
     isLoading: isDataLoading,
     isError,
     error,
   } = useWorkspacePublicDataQuery();
+  // With SSO enforced, password sign-in is rejected by the server anyway.
+  const passwordLoginHidden =
+    publicWorkspace?.enforceSso === true &&
+    (publicWorkspace?.authProviders ?? []).some((p) => p.type === "oidc");
 
   const form = useForm<FormValues>({
     validate: zod4Resolver(formSchema),
@@ -75,6 +81,12 @@ export function LoginForm() {
             {t("Login")}
           </Title>
 
+          <SsoLoginButtons
+            workspace={publicWorkspace}
+            withDivider={!passwordLoginHidden}
+          />
+
+          {!passwordLoginHidden && (
           <form onSubmit={form.onSubmit(onSubmit, handleValidationFailure)}>
             <TextInput
               id="email"
@@ -118,6 +130,7 @@ export function LoginForm() {
               {t("Sign In")}
             </Button>
           </form>
+          )}
         </Box>
       </Container>
     </AuthLayout>

@@ -20,6 +20,8 @@ export enum EncryptionPurpose {
   INTEGRATION_TOKENS = 'integration-tokens',
   OAUTH_COMPLETION = 'oauth-completion',
   AI_CREDENTIALS = 'ai-credentials',
+  SSO_CREDENTIALS = 'sso-credentials',
+  SSO_STATE = 'sso-state',
 }
 
 const KEY_ID = 'app-secret';
