@@ -58,7 +58,7 @@ const REFRESH_WAIT_TIMEOUT_MS = 5_000;
 const REFRESH_WAIT_POLL_MS = 200;
 
 const CONNECT_UNSUPPORTED_MESSAGE =
-  'This integration does not support linking your account from Docmost';
+  'This integration does not support linking your account from DocIt';
 
 export type OAuthFlow = 'install' | 'connect';
 
@@ -603,7 +603,7 @@ export class OAuthService {
     );
     if (existingLink && existingLink.userId !== userId) {
       throw new BadRequestException(
-        'This account is already connected to a different Docmost user. Disconnect it there first.',
+        'This account is already connected to a different DocIt user. Disconnect it there first.',
       );
     }
   }

@@ -1,18 +1,20 @@
 <div align="center">
-    <h1><b>Docmost</b></h1>
+    <h1><b>DocIt</b></h1>
     <p>
         Open-source collaborative wiki and documentation software.
         <br />
-        <a href="https://docmost.com"><strong>Website</strong></a> | 
-        <a href="https://docmost.com/docs"><strong>Documentation</strong></a> |
-        <a href="https://twitter.com/DocmostHQ"><strong>Twitter / X</strong></a>
+        DocIt is a fork of <a href="https://docmost.com">Docmost</a>.
+        <br />
+        <a href="https://docmost.com"><strong>Docmost Website</strong></a> | 
+        <a href="https://docmost.com/docs"><strong>Docmost Documentation</strong></a> |
+        <a href="https://twitter.com/DocmostHQ"><strong>Docmost on Twitter / X</strong></a>
     </p>
 </div>
 <br />
 
 ## Getting started
 
-To get started with Docmost, please refer to our [documentation](https://docmost.com/docs) or try our [cloud version](https://docmost.com/pricing) .
+DocIt follows upstream Docmost closely, so the [Docmost documentation](https://docmost.com/docs) applies to DocIt as well.
 
 ## Features
 
@@ -36,7 +38,7 @@ To get started with Docmost, please refer to our [documentation](https://docmost
 </p>
 
 ### License
-Docmost core is licensed under the open-source AGPL 3.0 license.  
+DocIt, like Docmost core, is licensed under the open-source AGPL 3.0 license.  
 Enterprise features are available under an enterprise license (Enterprise Edition).  
 
 All files in the following directories are licensed under the Docmost Enterprise license defined in `packages/ee/License`.

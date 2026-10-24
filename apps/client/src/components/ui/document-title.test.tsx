@@ -8,12 +8,12 @@ const renderTitle = (ui: React.ReactNode) =>
 
 describe("DocumentTitle", () => {
   beforeEach(() => {
-    document.head.innerHTML = "<title>Docmost</title>";
+    document.head.innerHTML = "<title>DocIt</title>";
   });
 
   it("appends the app name", () => {
     renderTitle(<DocumentTitle title="Home" />);
-    expect(document.title).toBe("Home - Docmost");
+    expect(document.title).toBe("Home - DocIt");
   });
 
   it("omits the app name when asked", () => {
@@ -23,7 +23,7 @@ describe("DocumentTitle", () => {
 
   it("falls back to the app name without a title", () => {
     renderTitle(<DocumentTitle />);
-    expect(document.title).toBe("Docmost");
+    expect(document.title).toBe("DocIt");
   });
 
   it("never renders an empty title", () => {

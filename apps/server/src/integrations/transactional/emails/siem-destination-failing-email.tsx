@@ -23,13 +23,13 @@ export const SiemDestinationFailingEmail = ({
       <Section style={content}>
         <Text style={paragraph}>Hi there,</Text>
         <Text style={paragraph}>
-          Docmost cannot deliver audit events to your SIEM destination{' '}
+          DocIt cannot deliver audit events to your SIEM destination{' '}
           <strong>{destinationName}</strong> ({destinationType}).
         </Text>
         <Text style={paragraph}>Last error: {lastError}</Text>
         <Text style={paragraph}>Failing since {failingSince}.</Text>
         <Text style={paragraph}>
-          Docmost keeps retrying every 30 minutes. If the destination is still
+          DocIt keeps retrying every 30 minutes. If the destination is still
           failing 24 hours after it started, it is disabled automatically.
         </Text>
       </Section>
