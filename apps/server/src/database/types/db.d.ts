@@ -80,6 +80,12 @@ export interface Audit {
 }
 
 export interface AuthAccounts {
+  accessToken: string | null;
+  accessTokenExpiresAt: Timestamp | null;
+  idToken: string | null;
+  refreshToken: string | null;
+  refreshTokenExpiresAt: Timestamp | null;
+  scope: string | null;
   authProviderId: string | null;
   createdAt: Generated<Timestamp>;
   deletedAt: Timestamp | null;
@@ -777,11 +783,35 @@ export interface AiSettings {
   updatedAt: Generated<Timestamp>;
 }
 
+export interface AuthSessions {
+  id: Generated<string>;
+  token: string;
+  userId: string;
+  workspaceId: string;
+  expiresAt: Timestamp;
+  ipAddress: string | null;
+  userAgent: string | null;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface AuthVerifications {
+  id: Generated<string>;
+  workspaceId: string;
+  identifier: string;
+  value: string;
+  expiresAt: Timestamp;
+  createdAt: Generated<Timestamp>;
+  updatedAt: Generated<Timestamp>;
+}
+
 export interface DB {
   aiChats: AiChats;
   aiChatMessages: AiChatMessages;
   aiSettings: AiSettings;
   apiKeys: ApiKeys;
+  authSessions: AuthSessions;
+  authVerifications: AuthVerifications;
   attachments: Attachments;
   audit: Audit;
   authAccounts: AuthAccounts;

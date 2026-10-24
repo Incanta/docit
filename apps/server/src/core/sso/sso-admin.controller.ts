@@ -27,7 +27,20 @@ import {
   AUDIT_SERVICE,
   IAuditService,
 } from '../../integrations/audit/audit.service';
-import { OidcService, providerSettings } from './oidc.service';
+import { BetterAuthService } from '../auth/better-auth/better-auth.service';
+import {
+  EncryptionPurpose,
+  EncryptionService,
+} from '../../integrations/encryption/encryption.service';
+
+type OidcProviderSettings = {
+  groupsClaim?: string;
+  scopes?: string;
+  allowUnverifiedEmail?: boolean;
+};
+
+const providerSettings = (p: AuthProvider): OidcProviderSettings =>
+  (p.settings as OidcProviderSettings) ?? {};
 import {
   CreateOidcProviderDto,
   SsoProviderIdDto,
@@ -41,10 +54,15 @@ export class SsoAdminController {
   constructor(
     private readonly ssoRepo: SsoRepo,
     private readonly workspaceRepo: WorkspaceRepo,
-    private readonly oidcService: OidcService,
+    private readonly betterAuth: BetterAuthService,
+    private readonly encryption: EncryptionService,
     private readonly workspaceAbility: WorkspaceAbilityFactory,
     @Inject(AUDIT_SERVICE) private readonly auditService: IAuditService,
   ) {}
+
+  private encryptSecret(secret: string) {
+    return this.encryption.encrypt(secret, EncryptionPurpose.SSO_CREDENTIALS);
+  }
 
   private assertAdmin(user: User, workspace: Workspace) {
     const ability = this.workspaceAbility.createForUser(user, workspace);
@@ -70,7 +88,7 @@ export class SsoAdminController {
       groupsClaim: settings.groupsClaim ?? 'groups',
       scopes: settings.scopes ?? '',
       allowUnverifiedEmail: settings.allowUnverifiedEmail === true,
-      callbackUrl: this.oidcService.callbackUrl(workspace, p.id),
+      callbackUrl: this.betterAuth.oauthCallbackUrl(workspace, p.id),
       createdAt: p.createdAt,
     };
   }
@@ -112,7 +130,7 @@ export class SsoAdminController {
       oidcIssuer: dto.issuer.replace(/\/$/, ''),
       oidcClientId: dto.clientId.trim(),
       oidcClientSecret: dto.clientSecret
-        ? this.oidcService.encryptSecret(dto.clientSecret)
+        ? this.encryptSecret(dto.clientSecret)
         : null,
       isEnabled: dto.isEnabled ?? false,
       allowSignup: dto.allowSignup ?? false,
@@ -120,6 +138,7 @@ export class SsoAdminController {
       settings: this.settingsFrom(dto) as any,
     });
 
+    this.betterAuth.invalidate(workspace.id);
     this.auditService.log({
       event: AuditEvent.SSO_PROVIDER_CREATED,
       resourceType: AuditResource.SSO_PROVIDER,
@@ -160,7 +179,7 @@ export class SsoAdminController {
       ...(dto.clientSecret !== undefined
         ? {
             oidcClientSecret: dto.clientSecret
-              ? this.oidcService.encryptSecret(dto.clientSecret)
+              ? this.encryptSecret(dto.clientSecret)
               : null,
           }
         : {}),
@@ -170,6 +189,7 @@ export class SsoAdminController {
       settings: this.settingsFrom(dto) as any,
     });
 
+    this.betterAuth.invalidate(workspace.id);
     this.auditService.log({
       event: AuditEvent.SSO_PROVIDER_UPDATED,
       resourceType: AuditResource.SSO_PROVIDER,
@@ -212,6 +232,7 @@ export class SsoAdminController {
       }
     }
     await this.ssoRepo.softDeleteProvider(existing.id, workspace.id);
+    this.betterAuth.invalidate(workspace.id);
     this.auditService.log({
       event: AuditEvent.SSO_PROVIDER_DELETED,
       resourceType: AuditResource.SSO_PROVIDER,
@@ -232,8 +253,17 @@ export class SsoAdminController {
     const provider = await this.ssoRepo.findProvider(dto.providerId, workspace.id);
     if (!provider) throw new NotFoundException('SSO provider not found');
     try {
-      const config = await this.oidcService.getConfig(provider);
-      const meta = config.serverMetadata();
+      const issuer = String(provider.oidcIssuer).replace(/\/$/, '');
+      const res = await fetch(`${issuer}/.well-known/openid-configuration`, {
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!res.ok) {
+        return { ok: false, error: `Discovery returned HTTP ${res.status}` };
+      }
+      const meta = await res.json();
+      if (!meta.authorization_endpoint || !meta.token_endpoint) {
+        return { ok: false, error: 'Discovery document is missing endpoints' };
+      }
       return {
         ok: true,
         issuer: meta.issuer,

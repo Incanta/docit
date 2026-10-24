@@ -44,6 +44,7 @@ import {
 import { EnvironmentService } from '../../../integrations/environment/environment.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventName } from '../../../common/events/event.contants';
+import { BetterAuthService } from '../better-auth/better-auth.service';
 
 @Injectable()
 export class AuthService {
@@ -63,6 +64,7 @@ export class AuthService {
     @InjectKysely() private readonly db: KyselyDB,
     @Inject(AUDIT_SERVICE) private readonly auditService: IAuditService,
     private wsService: WsService,
+    private betterAuthService: BetterAuthService,
   ) {}
 
   async login(loginDto: LoginDto, workspaceId: string) {
@@ -75,12 +77,18 @@ export class AuthService {
       throw new UnauthorizedException(errorMessage);
     }
 
-    const isPasswordMatch = await comparePasswordHash(
+    // DocIt: credentials are verified by better-auth (same bcrypt hashes).
+    const workspace = await this.db
+      .selectFrom('workspaces')
+      .selectAll()
+      .where('id', '=', workspaceId)
+      .executeTakeFirst();
+    const verifiedUserId = await this.betterAuthService.verifyPassword(
+      workspace as any,
+      loginDto.email,
       loginDto.password,
-      user.password,
     );
-
-    if (!isPasswordMatch) {
+    if (verifiedUserId !== user.id) {
       throw new UnauthorizedException(errorMessage);
     }
 

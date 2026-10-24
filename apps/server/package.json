@@ -71,6 +71,7 @@
     "ai": "6.0.285",
     "ai-sdk-ollama": "3.8.1",
     "bcrypt": "6.0.0",
+    "better-auth": "1.7.7",
     "bowser": "2.14.1",
     "bullmq": "5.79.0",
     "cache-manager": "7.2.8",
