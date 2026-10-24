@@ -14,6 +14,7 @@ import { UserSessionRepo } from '@docmost/db/repos/session/user-session.repo';
 import { SessionActivityService } from '../../session/session-activity.service';
 import { FastifyRequest } from 'fastify';
 import { extractBearerTokenFromHeader, isUserDisabled } from '../../../common/helpers';
+import { ApiKeyService } from '../../api-key/api-key.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -23,6 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     private userSessionRepo: UserSessionRepo,
     private sessionActivityService: SessionActivityService,
     private readonly environmentService: EnvironmentService,
+    private readonly apiKeyService: ApiKeyService,
   ) {
     super({
       jwtFromRequest: (req: FastifyRequest) => {
@@ -46,7 +48,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new UnauthorizedException('Workspace does not match');
     }
 
-    // API key and OAuth access tokens are not supported in DocIt.
+    if (payload.type === JwtType.API_KEY) {
+      const result = await this.apiKeyService.validate(
+        payload as JwtApiKeyPayload,
+      );
+      return { ...result, authType: JwtType.API_KEY };
+    }
+
+    // OAuth access tokens are not supported in DocIt.
     if (payload.type !== JwtType.ACCESS) {
       throw new UnauthorizedException();
     }

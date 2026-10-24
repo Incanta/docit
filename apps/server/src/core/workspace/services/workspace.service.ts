@@ -344,7 +344,6 @@ export class WorkspaceService {
     const unavailableSettings = [
       'trashRetentionDays',
       'mcpEnabled',
-      'restrictApiToAdmins',
       'allowMemberTemplates',
       'isScimEnabled',
       'allowPersonalSpaces',

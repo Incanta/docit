@@ -16,6 +16,10 @@ import { JwtType } from '../../core/auth/dto/jwt-payload';
 import { Reflector } from '@nestjs/core';
 import { EnvironmentService } from '../../integrations/environment/environment.service';
 import { addDays } from 'date-fns';
+import {
+  hasScope,
+  requiredScopeFor,
+} from '../../core/api-key/api-key-scopes';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -57,6 +61,17 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       throw new ForbiddenException(
         'This action requires an interactive user session',
       );
+    }
+
+    if (user.authType === JwtType.API_KEY) {
+      // API keys may only call routes that declare a scope.
+      const required = requiredScopeFor(this.reflector, ctx);
+      if (!required) {
+        throw new ForbiddenException('API keys cannot access this endpoint');
+      }
+      if (!hasScope(user.apiKey?.scopes, required)) {
+        throw new ForbiddenException(`Missing API key scope: ${required}`);
+      }
     }
 
     if (user.oauth) {

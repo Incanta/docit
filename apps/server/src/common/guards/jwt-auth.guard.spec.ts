@@ -18,6 +18,24 @@ function createCtx(): ExecutionContext {
   } as any;
 }
 
+/** Context for a handler on a controller mounted at `controllerPath`. */
+function createApiCtx(
+  controllerPath: string,
+  method = 'POST',
+  url = `/api/${controllerPath}/anything`,
+): ExecutionContext {
+  const controller = class ScopedController {};
+  Reflect.defineMetadata('path', controllerPath, controller);
+  return {
+    getHandler: () => handlerSentinel,
+    getClass: () => controller,
+    switchToHttp: () => ({
+      getRequest: () => ({ method, routeOptions: { url } }),
+      getResponse: () => ({}),
+    }),
+  } as any;
+}
+
 function createGuard(scopeMetadata?: unknown, requireSession?: boolean) {
   const reflector = {
     getAllAndOverride: jest.fn((key: string) =>
@@ -144,17 +162,70 @@ describe('JwtAuthGuard.handleRequest', () => {
       );
     });
 
-    it('leaves api keys working on routes without the marker', () => {
-      const { guard } = createGuard(undefined, undefined);
+    it('leaves api keys working on scoped routes without the marker', () => {
+      const { guard } = createGuard('read', undefined);
       const apiKeyUser = {
         user: { id: 'user_1' },
         workspace: { id: 'ws_1' },
         authType: JwtType.API_KEY,
+        apiKey: { id: 'key_1', scopes: ['pages:read'] },
       };
 
-      expect(guard.handleRequest(null, apiKeyUser, null, createCtx())).toBe(
-        apiKeyUser,
+      expect(
+        guard.handleRequest(null, apiKeyUser, null, createApiCtx('pages')),
+      ).toBe(apiKeyUser);
+    });
+  });
+
+  describe('api key scopes', () => {
+    const keyUser = (scopes: string[] | null) => ({
+      user: { id: 'user_1' },
+      workspace: { id: 'ws_1' },
+      authType: JwtType.API_KEY,
+      apiKey: { id: 'key_1', scopes },
+    });
+
+    it('rejects routes that declare no scope', () => {
+      const { guard } = createGuard(undefined);
+      expect(() =>
+        guard.handleRequest(null, keyUser(null), null, createApiCtx('groups')),
+      ).toThrow('API keys cannot access this endpoint');
+    });
+
+    it('rejects a key without the required scope', () => {
+      const { guard } = createGuard('write');
+      expect(() =>
+        guard.handleRequest(
+          null,
+          keyUser(['pages:read']),
+          null,
+          createApiCtx('pages'),
+        ),
+      ).toThrow('Missing API key scope: pages:write');
+    });
+
+    it('treats write as including read', () => {
+      const { guard } = createGuard('read');
+      const user = keyUser(['comments:write']);
+      expect(
+        guard.handleRequest(null, user, null, createApiCtx('comments')),
+      ).toBe(user);
+    });
+
+    it('allows legacy keys without stored scopes', () => {
+      const { guard } = createGuard('write');
+      const user = keyUser(null);
+      expect(guard.handleRequest(null, user, null, createApiCtx('spaces'))).toBe(
+        user,
       );
+    });
+
+    it('uses the explicit route table for unmarked routes', () => {
+      const { guard } = createGuard(undefined);
+      const ctx = createApiCtx('pages', 'POST', '/api/pages/delete');
+      expect(() =>
+        guard.handleRequest(null, keyUser(['pages:read']), null, ctx),
+      ).toThrow('Missing API key scope: pages:write');
     });
   });
 
