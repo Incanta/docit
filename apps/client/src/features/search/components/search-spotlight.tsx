@@ -10,6 +10,10 @@ import { AiAnswerPanel } from "@/features/ai/components/ai-answer-panel.tsx";
 import { SearchSpotlightFilters } from "./search-spotlight-filters.tsx";
 import { useUnifiedSearch } from "../hooks/use-unified-search.ts";
 import { SearchResultItem } from "./search-result-item.tsx";
+import {
+  AttachmentSearchResults,
+  useAttachmentSearch,
+} from "./attachment-search-results.tsx";
 
 interface SearchSpotlightProps {
   spaceId?: string;
@@ -54,6 +58,15 @@ export function SearchSpotlight({ spaceId }: SearchSpotlightProps) {
   }, [debouncedSearchQuery, filters]);
 
   const { data: searchResults, isFetching } = useUnifiedSearch(searchParams);
+  // Files only match on text; skip them in label/creator browse and title-only mode.
+  const { data: attachmentResults } = useAttachmentSearch(
+    {
+      query: debouncedSearchQuery,
+      spaceId: filters.spaceId ?? undefined,
+    },
+    !filters.titleOnly && !filters.labelIds?.length && !filters.creatorId,
+  );
+  const fileResults = (debouncedSearchQuery && attachmentResults) || [];
 
   const isFilterBrowse =
     (filters.labelIds?.length ?? 0) > 0 || !!filters.creatorId;
@@ -150,11 +163,17 @@ export function SearchSpotlight({ spaceId }: SearchSpotlightProps) {
           {(query.length > 0 || isFilterBrowse) &&
             !isFetching &&
             isQuerySettled &&
-            resultItems.length === 0 && (
+            resultItems.length === 0 &&
+            fileResults.length === 0 && (
               <Spotlight.Empty>{t("No results found...")}</Spotlight.Empty>
             )}
 
           {resultItems.length > 0 && <>{resultItems}</>}
+
+          <AttachmentSearchResults
+            results={fileResults}
+            showSpace={!filters.spaceId}
+          />
 
           {(query.length > 0 || isFilterBrowse) &&
             isFetching &&

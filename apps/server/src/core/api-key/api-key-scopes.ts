@@ -55,6 +55,7 @@ const EXTRA_ROUTE_SCOPES: Record<string, ApiKeyScope> = {
   'POST /files/upload': 'attachments:write',
   'POST /files/info': 'attachments:read',
   'POST /attachments/upload-image': 'attachments:write',
+  'POST /search/attachments': 'search:read',
   'POST /ai/generate': 'ai:write',
   'POST /ai/generate/stream': 'ai:write',
   'POST /ai/ask': 'ai:read',

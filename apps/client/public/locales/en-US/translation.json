@@ -1705,5 +1705,11 @@
   "Reading {{count}} pages...": "Reading {{count}} pages...",
   "Searching the knowledge base...": "Searching the knowledge base...",
   "AI answers can be wrong. Check the sources.": "AI answers can be wrong. Check the sources.",
-  "See search results": "See search results"
+  "See search results": "See search results",
+  "In {{page}}": "In {{page}}",
+  "Files": "Files",
+  "Indexing started. Files become searchable as they finish.": "Indexing started. Files become searchable as they finish.",
+  "Search inside attachments": "Search inside attachments",
+  "Text in PDF, Word (DOCX), Markdown, CSV, and text files is searchable. New uploads are indexed automatically; index existing files once after upgrading.": "Text in PDF, Word (DOCX), Markdown, CSV, and text files is searchable. New uploads are indexed automatically; index existing files once after upgrading.",
+  "Index existing files": "Index existing files"
 }

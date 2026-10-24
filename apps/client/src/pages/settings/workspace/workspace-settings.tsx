@@ -7,6 +7,7 @@ import { Divider } from "@mantine/core";
 import WorkspaceDefaultPageEditMode from "@/features/workspace/components/settings/components/workspace-default-page-edit-mode.tsx";
 import AllowPublicSpaces from "@/features/workspace/components/settings/components/allow-public-spaces.tsx";
 import { DocumentTitle } from "@/components/ui/document-title.tsx";
+import AttachmentSearchIndex from "@/features/workspace/components/settings/components/attachment-search-index.tsx";
 
 export default function WorkspaceSettings() {
   const { t } = useTranslation();
@@ -26,6 +27,9 @@ export default function WorkspaceSettings() {
 
       <Divider my="md" />
       <WorkspaceDefaultPageEditMode />
+
+      <Divider my="md" />
+      <AttachmentSearchIndex />
     </>
   );
 }

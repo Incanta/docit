@@ -2,12 +2,16 @@ import { Logger, OnModuleDestroy } from '@nestjs/common';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { AttachmentService } from '../services/attachment.service';
+import { AttachmentIndexService } from '../services/attachment-index.service';
 import { QueueJob, QueueName } from 'src/integrations/queue/constants';
 
 @Processor(QueueName.ATTACHMENT_QUEUE)
 export class AttachmentProcessor extends WorkerHost implements OnModuleDestroy {
   private readonly logger = new Logger(AttachmentProcessor.name);
-  constructor(private readonly attachmentService: AttachmentService) {
+  constructor(
+    private readonly attachmentService: AttachmentService,
+    private readonly attachmentIndexService: AttachmentIndexService,
+  ) {
     super();
   }
 
@@ -29,8 +33,16 @@ export class AttachmentProcessor extends WorkerHost implements OnModuleDestroy {
           job.data.aiChatId,
         );
       }
-      // ATTACHMENT_INDEX_CONTENT and ATTACHMENT_INDEXING jobs are ignored:
-      // attachment content indexing is not part of DocIt.
+      if (job.name === QueueJob.ATTACHMENT_INDEX_CONTENT) {
+        await this.attachmentIndexService.indexAttachment(
+          job.data.attachmentId,
+        );
+      }
+      if (job.name === QueueJob.ATTACHMENT_INDEXING) {
+        await this.attachmentIndexService.indexWorkspace(job.data.workspaceId, {
+          force: job.data.force === true,
+        });
+      }
     } catch (err) {
       throw err;
     }

@@ -28,6 +28,7 @@ import { QueueJob, QueueName } from '../../../integrations/queue/constants';
 import { Queue } from 'bullmq';
 import { createByteCountingStream } from '../../../common/helpers/utils';
 
+import { isIndexable } from './attachment-index.service';
 @Injectable()
 export class AttachmentService {
   private readonly logger = new Logger(AttachmentService.name);
@@ -116,8 +117,8 @@ export class AttachmentService {
         });
       }
 
-      // Only index PDF, DOCX and TXT files
-      if (['.pdf', '.docx', '.txt'].includes(attachment.fileExt.toLowerCase())) {
+      // Extract text from documents so they show up in search.
+      if (isIndexable(attachment.fileExt)) {
         await this.attachmentQueue.add(
           QueueJob.ATTACHMENT_INDEX_CONTENT,
           {
