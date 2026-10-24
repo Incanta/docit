@@ -1576,5 +1576,14 @@
   "Tab actions for {{name}}": "Tab actions for {{name}}",
   "Inline base": "Inline base",
   "Re-open comment": "Re-open comment",
-  "Resolved by {{name}}": "Resolved by {{name}}"
+  "Resolved by {{name}}": "Resolved by {{name}}",
+  "Public sharing disabled": "Public sharing disabled",
+  "Public sharing enabled": "Public sharing enabled",
+  "All public share links in this workspace will be deleted and members will not be able to share pages. Are you sure?": "All public share links in this workspace will be deleted and members will not be able to share pages. Are you sure?",
+  "Allow public sharing": "Allow public sharing",
+  "Members can publish pages to the web with a public link. Turning this off deletes existing share links.": "Members can publish pages to the web with a public link. Turning this off deletes existing share links.",
+  "All public share links in this space will be deleted and members will not be able to share its pages. Are you sure?": "All public share links in this space will be deleted and members will not be able to share its pages. Are you sure?",
+  "Public sharing is disabled for the whole workspace.": "Public sharing is disabled for the whole workspace.",
+  "Members can publish pages in this space to the web. Turning this off deletes existing share links.": "Members can publish pages in this space to the web. Turning this off deletes existing share links.",
+  "Sharing": "Sharing"
 }

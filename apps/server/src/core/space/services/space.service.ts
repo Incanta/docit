@@ -134,11 +134,8 @@ export class SpaceService {
       }
     }
 
-    // These space settings belong to features that are not part of DocIt.
-    if (
-      typeof updateSpaceDto.disablePublicSharing !== 'undefined' ||
-      typeof updateSpaceDto.allowViewerComments !== 'undefined'
-    ) {
+    // This space setting belongs to a feature that is not part of DocIt.
+    if (typeof updateSpaceDto.allowViewerComments !== 'undefined') {
       throw new ForbiddenException('This setting is not available');
     }
 
