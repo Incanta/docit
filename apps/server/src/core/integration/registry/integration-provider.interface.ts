@@ -1,4 +1,3 @@
-import { FeatureKey } from '../../../common/features';
 import { KyselyTransaction } from '@docmost/db/types/kysely.types';
 
 export type IntegrationCapability = 'oauth' | 'unfurl' | 'actions';
@@ -111,8 +110,6 @@ export type IntegrationDefinition = {
   unfurlPatterns?: UnfurlPattern[];
   // Not installable, but existing installations keep unfurling.
   hidden?: boolean;
-  // License feature the install is gated on; unset = free.
-  requiresFeature?: FeatureKey;
 };
 
 export type ConnectedEvent = {

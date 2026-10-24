@@ -1,6 +1,5 @@
 import api from "@/lib/api-client";
 import {
-  IAttachmentSearch,
   IPageSearch,
   IPageSearchParams,
   ISuggestionResult,
@@ -35,12 +34,5 @@ export async function searchPublicSpace(
     "/search/public-space-search",
     params,
   );
-  return req.data.items;
-}
-
-export async function searchAttachments(
-  params: IPageSearchParams,
-): Promise<IAttachmentSearch[]> {
-  const req = await api.post<{ items: IAttachmentSearch[] }>("/search-attachments", params);
   return req.data.items;
 }

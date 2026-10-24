@@ -37,10 +37,9 @@ jobs:
           private-key: ${{ secrets.BUILD_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
-      - name: Checkout with submodules
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: recursive
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Set up Docker Buildx

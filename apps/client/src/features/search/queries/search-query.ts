@@ -1,13 +1,11 @@
 import { keepPreviousData, useQuery, UseQueryResult } from "@tanstack/react-query";
 import {
-  searchAttachments,
   searchPage,
   searchPublicSpace,
   searchShare,
   searchSuggestions,
 } from '@/features/search/services/search-service';
 import {
-  IAttachmentSearch,
   IPageSearch,
   IPageSearchParams,
   ISuggestionResult,
@@ -43,16 +41,6 @@ export function useShareSearchQuery(
   return useQuery({
     queryKey: ["share-search", params],
     queryFn: () => searchShare(params),
-    enabled: !!params.query,
-  });
-}
-
-export function useAttachmentSearchQuery(
-  params: IPageSearchParams,
-): UseQueryResult<IAttachmentSearch[], Error> {
-  return useQuery({
-    queryKey: ["attachment-search", params],
-    queryFn: () => searchAttachments(params),
     enabled: !!params.query,
   });
 }

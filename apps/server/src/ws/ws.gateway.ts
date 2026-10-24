@@ -18,7 +18,6 @@ import {
   getSpaceRoomName,
   getUserRoomName,
 } from './ws.utils';
-import { BaseRealtimeBridge } from './base-realtime.bridge';
 import * as cookie from 'cookie';
 
 @WebSocketGateway({
@@ -38,12 +37,10 @@ export class WsGateway
   constructor(
     private tokenService: TokenService,
     private wsService: WsService,
-    private baseRealtime: BaseRealtimeBridge,
   ) {}
 
   afterInit(server: Server): void {
     this.wsService.setServer(server);
-    this.baseRealtime.setServer(server);
   }
 
   async handleConnection(client: Socket, ...args: any[]): Promise<void> {
@@ -84,19 +81,12 @@ export class WsGateway
     }
   }
 
-  async handleDisconnect(client: Socket): Promise<void> {
-    await this.baseRealtime.handleDisconnect(client);
-  }
+  handleDisconnect(): void {}
 
   @SubscribeMessage('message')
   async handleMessage(client: Socket, data: any): Promise<void> {
     if (this.wsService.isTreeEvent(data)) {
       await this.wsService.handleTreeEvent(client, data);
-      return;
-    }
-    if (this.baseRealtime.isBaseEvent(data)) {
-      await this.baseRealtime.handleInbound(client, data);
-      return;
     }
   }
 

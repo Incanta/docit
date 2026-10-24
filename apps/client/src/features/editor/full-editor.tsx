@@ -17,7 +17,6 @@ import { IconInfoCircle } from "@tabler/icons-react";
 import { useAtom } from "jotai";
 import { userAtom } from "@/features/user/atoms/current-user-atom.ts";
 import { CustomAvatar } from "@/components/ui/custom-avatar.tsx";
-import { PageVerificationBadge } from "@/ee/page-verification";
 import { useTranslation } from "react-i18next";
 import { IContributor } from "@/features/page/types/page.types.ts";
 import { FixedToolbar } from "@/features/editor/components/fixed-toolbar/fixed-toolbar";
@@ -26,7 +25,6 @@ import { useAsideTriggerProps } from "@/hooks/use-toggle-aside.tsx";
 import { DeletedPageBanner } from "@/features/page/trash/components/deleted-page-banner.tsx";
 import clsx from "clsx";
 import { currentPageEditModeAtom } from "@/features/editor/atoms/editor-atoms.ts";
-import { EmptyPageGetStarted } from "@/features/editor/components/empty-page/empty-page-get-started";
 
 const MemoizedTitleEditor = React.memo(TitleEditor);
 const MemoizedPageEditor = React.memo(PageEditor);
@@ -61,7 +59,6 @@ export function FullEditor({
   title,
   slugId,
   content,
-  spaceId,
   spaceSlug,
   editable,
   creator,
@@ -106,21 +103,12 @@ export function FullEditor({
         spaceSlug={spaceSlug}
         editable={editable}
       />
-      <PageByline
-        creator={creator}
-        contributors={contributors}
-        readOnly={!editable}
-      />
+      <PageByline creator={creator} contributors={contributors} />
       <MemoizedPageEditor
         pageId={pageId}
         editable={editable}
         content={content}
         canComment={canComment}
-      />
-      <EmptyPageGetStarted
-        pageId={pageId}
-        spaceId={spaceId}
-        editable={editable}
       />
     </Container>
   );
@@ -129,10 +117,9 @@ export function FullEditor({
 type PageBylineProps = {
   creator?: PageUser;
   contributors?: IContributor[];
-  readOnly?: boolean;
 };
 
-function PageByline({ creator, contributors, readOnly }: PageBylineProps) {
+function PageByline({ creator, contributors }: PageBylineProps) {
   const { t } = useTranslation();
   const detailsTriggerProps = useAsideTriggerProps("details");
 
@@ -219,8 +206,6 @@ function PageByline({ creator, contributors, readOnly }: PageBylineProps) {
           <IconInfoCircle size={20} stroke={1.5} />
         </ActionIcon>
       </Tooltip>
-
-      <PageVerificationBadge readOnly={readOnly} />
     </Group>
   );
 }

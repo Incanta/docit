@@ -220,8 +220,5 @@ export class GroupUserService {
       userIds,
       groupAccess.spaceIds,
     );
-    await this.wsService.removeBaseSubscribersWithoutAccess(
-      groupAccess.pageIds,
-    );
   }
 }

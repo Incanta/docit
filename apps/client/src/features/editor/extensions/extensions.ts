@@ -1,10 +1,10 @@
-import { markInputRule, type Editor } from "@tiptap/core";
+import { markInputRule } from "@tiptap/core";
 import { StarterKit } from "@tiptap/starter-kit";
 import { TiptapDocument } from "@/features/editor/extensions/document";
 import { Code } from "@tiptap/extension-code";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { TaskList, TaskItem } from "@tiptap/extension-list";
-import { CharacterCount, UndoRedo } from "@tiptap/extensions";
+import { CharacterCount } from "@tiptap/extensions";
 import { Placeholder } from "@/features/editor/extensions/placeholder";
 import { Superscript } from "@tiptap/extension-superscript";
 import SubScript from "@tiptap/extension-subscript";
@@ -12,11 +12,7 @@ import { Typography } from "@tiptap/extension-typography";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { Youtube } from "@tiptap/extension-youtube";
-import SlashCommand, {
-  SlashCommandExtension as Command,
-} from "@/features/editor/extensions/slash-command";
-import renderItems from "@/features/editor/components/slash-menu/render-items";
-import getSuggestionItems from "@/features/editor/components/slash-menu/menu-items";
+import SlashCommand from "@/features/editor/extensions/slash-command";
 import { Collaboration, isChangeOrigin } from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
 import { HocuspocusProvider } from "@hocuspocus/provider";
@@ -104,7 +100,6 @@ import SubpagesView from "@/features/editor/components/subpages/subpages-view.ts
 import IntegrationCardView from "@/features/editor/components/integration-link/integration-card-view.tsx";
 import IntegrationMentionView from "@/features/editor/components/integration-link/integration-mention-view.tsx";
 import { IntegrationPasteMenuExtension } from "@/features/editor/extensions/integration-paste-menu";
-import { BasePasteMenuExtension } from "@/features/editor/extensions/base-paste-menu";
 import TabsView from "@/features/editor/components/tabs/tabs-view.tsx";
 import TransclusionView from "@/features/editor/components/transclusion/transclusion-view.tsx";
 import TransclusionReferenceView from "@/features/editor/components/transclusion/transclusion-reference-view.tsx";
@@ -409,7 +404,6 @@ export const mainExtensions = [
     view: IntegrationMentionView,
   }),
   IntegrationPasteMenuExtension,
-  BasePasteMenuExtension,
   Status.configure({
     view: StatusView,
   }),
@@ -458,36 +452,6 @@ export const mainExtensions = [
 ] as any;
 
 type CollabExtensions = (provider: HocuspocusProvider, user: IUser) => any[];
-
-const TEMPLATE_EXCLUDED_SLASH_ITEMS = new Set([
-  "Image",
-  "Video",
-  "File attachment",
-  "Draw.io (diagrams.net)",
-  "Excalidraw (Whiteboard)",
-  "Audio",
-  "Synced block",
-  "Base (Inline)",
-  "Kanban"
-]);
-
-const TemplateSlashCommand = Command.configure({
-  suggestion: {
-    items: ({ query, editor }: { query: string; editor: Editor }) =>
-      getSuggestionItems({
-        query,
-        editor,
-        excludeItems: TEMPLATE_EXCLUDED_SLASH_ITEMS,
-      }),
-    render: renderItems,
-  },
-});
-
-export const templateExtensions = [
-  ...mainExtensions.filter((ext: any) => ext !== SlashCommand),
-  TemplateSlashCommand,
-  UndoRedo,
-] as any;
 
 export const collabExtensions: CollabExtensions = (provider, user) => [
   Collaboration.configure({

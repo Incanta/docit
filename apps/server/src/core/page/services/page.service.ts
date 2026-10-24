@@ -543,7 +543,6 @@ export class PageService {
 
     await this.collabAccessService.recheckAccess({ pageIds: [rootPage.id] });
     await this.wsService.invalidateSpaceRestrictionCache(spaceId);
-    await this.wsService.removeBaseSubscribersWithoutAccess([rootPage.id]);
 
     return result;
   }
@@ -927,7 +926,6 @@ export class PageService {
 
     if (mayLoseAccess) {
       await this.collabAccessService.recheckAccess({ pageIds: [dto.pageId] });
-      await this.wsService.removeBaseSubscribersWithoutAccess([dto.pageId]);
     }
   }
 

@@ -32,20 +32,6 @@ import { ThrottleModule } from './integrations/throttle/throttle.module';
 import { OutboundModule } from './integrations/outbound/outbound.module';
 import { EncryptionModule } from './integrations/encryption/encryption.module';
 
-const enterpriseModules = [];
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  if (require('./ee/ee.module')?.EeModule) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    enterpriseModules.push(require('./ee/ee.module')?.EeModule);
-  }
-} catch (err) {
-  if (process.env.CLOUD === 'true') {
-    console.warn('Failed to load enterprise modules. Exiting program.\n', err);
-    process.exit(1);
-  }
-}
-
 @Module({
   imports: [
     ClsModule.forRoot({
@@ -53,7 +39,7 @@ try {
       middleware: { mount: true },
     }),
     LoggerModule,
-    ...(enterpriseModules.length > 0 ? [] : [NoopAuditModule]),
+    NoopAuditModule,
     CoreModule,
     DatabaseModule,
     EnvironmentModule,
@@ -102,7 +88,6 @@ try {
     TelemetryModule,
     ThrottleModule,
     OutboundModule,
-    ...enterpriseModules,
   ],
   controllers: [AppController],
   providers: [

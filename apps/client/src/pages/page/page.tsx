@@ -12,13 +12,10 @@ import React, { useEffect } from "react";
 import { useSetAtom } from "jotai";
 import { asideStateAtom } from "@/components/layouts/global/hooks/atoms/sidebar-atom";
 import { EmptyState } from "@/components/ui/empty-state.tsx";
-import { IconAlertTriangle, IconFileOff } from "@tabler/icons-react";
+import { IconAlertTriangle, IconFileOff, IconTable } from "@tabler/icons-react";
 import { Button } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { ErrorBoundary } from "react-error-boundary";
-import { BaseView } from "@/ee/base/components/base-view";
-import { useHasFeature } from "@/ee/hooks/use-feature";
-import { Feature } from "@/ee/features";
 import { getPageTitle } from "@/features/page/page.utils";
 import { DocumentTitle } from "@/components/ui/document-title.tsx";
 const MemoizedFullEditor = React.memo(FullEditor);
@@ -69,7 +66,6 @@ function PageContent({ pageSlug }: { pageSlug: string | undefined }) {
 
   useCommentDeepLink(page?.id);
 
-  const hasBases = useHasFeature(Feature.BASES);
   const canEdit = !page?.deletedAt && (page?.permissions?.canEdit ?? false);
   const canComment =
     canEdit ||
@@ -108,61 +104,30 @@ function PageContent({ pageSlug }: { pageSlug: string | undefined }) {
     return <></>;
   }
 
+  // Databases (bases) are not part of DocIt. Existing base pages still open,
+  // but only show their title and a notice.
   if (page?.isBase) {
     return (
-      <div
-        className="base-page-root"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          // Height: see `.base-page-root` in core.css.
-          // Clear the fixed PageHeader (breadcrumb) plus a little extra so the
-          // pinned column-header row isn't tucked half under it.
-          paddingTop: "calc(var(--page-header-height) + 6px)",
-        }}
-      >
+      <div>
         <DocumentTitle
           title={`${page?.icon || ""}  ${getPageTitle(page?.title, page?.isBase, t)}`}
           withAppName={false}
         />
         <MemoizedPageHeader readOnly={!canEdit} />
-        <div
-          style={{
-            flex: 1,
-            minHeight: 0,
-            display: "flex",
-            flexDirection: "column",
-            paddingInline: 24,
-          }}
-        >
-          <div
-            style={{
-              flex: 1,
-              minHeight: 0,
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <BaseView
-              pageId={page.id}
-              editable={hasBases && canEdit}
-              titleSlot={
-                <div
-                  className="base-page-title"
-                  style={{ paddingTop: 2, paddingBottom: 6 }}
-                >
-                  <MemoizedTitleEditor
-                    pageId={page.id}
-                    slugId={page.slugId}
-                    title={page.title}
-                    spaceSlug={page.space?.slug ?? ""}
-                    editable={hasBases && canEdit}
-                    isBase
-                  />
-                </div>
-              }
-            />
-          </div>
+        <div style={{ paddingTop: "var(--page-header-height)", paddingInline: 24 }}>
+          <MemoizedTitleEditor
+            pageId={page.id}
+            slugId={page.slugId}
+            title={page.title}
+            spaceSlug={page.space?.slug ?? ""}
+            editable={false}
+            isBase
+          />
+          <EmptyState
+            icon={IconTable}
+            title={t("Databases are not supported")}
+            description={t("This page is a database and can't be opened.")}
+          />
         </div>
       </div>
     );

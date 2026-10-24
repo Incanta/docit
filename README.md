@@ -38,13 +38,9 @@ DocIt follows upstream Docmost closely, so the [Docmost documentation](https://d
 </p>
 
 ### License
-DocIt, like Docmost core, is licensed under the open-source AGPL 3.0 license.  
-Enterprise features are available under an enterprise license (Enterprise Edition).  
+DocIt, like Docmost core, is licensed under the open-source AGPL 3.0 license.
 
-All files in the following directories are licensed under the Docmost Enterprise license defined in `packages/ee/License`.
-  - apps/server/src/ee
-  - apps/client/src/ee
-  - packages/ee
+DocIt does not include Docmost's Enterprise Edition code or any code under the Docmost Enterprise license.
 
 ### Contributing
 

@@ -35,20 +35,12 @@ export function getCollaborationUrl(): string {
   return collabUrl.toString();
 }
 
-export function getSubdomainHost(): string {
-  return getConfigValue("SUBDOMAIN_HOST");
-}
-
 export function isCloud(): boolean {
   return castToBoolean(getConfigValue("CLOUD"));
 }
 
 export function isBetaPublicSpaces(): boolean {
   return castToBoolean(getConfigValue("BETA_PUBLIC_SPACES"));
-}
-
-export function getAiVectorDriver(): string {
-  return getConfigValue("AI_VECTOR_DRIVER");
 }
 
 export function getAvatarUrl(
@@ -90,10 +82,6 @@ export function getFileImportSizeLimit() {
 
 export function getDrawioUrl() {
   return getConfigValue("DRAWIO_URL", "https://embed.diagrams.net");
-}
-
-export function getBillingTrialDays() {
-  return getConfigValue("BILLING_TRIAL_DAYS");
 }
 
 export function getPostHogHost() {

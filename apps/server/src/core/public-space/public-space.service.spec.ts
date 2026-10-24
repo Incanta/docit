@@ -1,6 +1,5 @@
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PublicSpaceService } from './public-space.service';
-import { Feature } from '../../common/features';
 
 const WORKSPACE_ID = '018f0000-0000-7000-8000-000000000001';
 const SPACE_ID = '018f0000-0000-7000-8000-000000000002';
@@ -63,11 +62,6 @@ function makeService(overrides: any = {}) {
     ...overrides.transclusionService,
   };
 
-  const licenseCheckService = {
-    resolveFeatures: jest.fn().mockReturnValue([Feature.PUBLIC_SPACE_APPEARANCE]),
-    ...overrides.licenseCheckService,
-  };
-
   const environmentService = {
     isBetaPublicSpaces: jest.fn().mockReturnValue(true),
     ...overrides.environmentService,
@@ -80,7 +74,6 @@ function makeService(overrides: any = {}) {
     pagePermissionRepo as any,
     shareService as any,
     transclusionService as any,
-    licenseCheckService as any,
     environmentService as any,
   );
   return {
@@ -91,7 +84,6 @@ function makeService(overrides: any = {}) {
     pagePermissionRepo,
     shareService,
     transclusionService,
-    licenseCheckService,
     environmentService,
   };
 }
@@ -426,72 +418,20 @@ describe('PublicSpaceService', () => {
   });
 
   describe('publish appearance', () => {
-    it('merges appearance into existing settings preserving unknown keys', async () => {
-      const { service, publicSpaceRepo } = makeService({
-        publicSpaceRepo: {
-          findBySpaceId: jest.fn().mockResolvedValue({
-            id: 'ps1',
-            spaceId: SPACE_ID,
-            enabled: true,
-            searchIndexing: false,
-            settings: {
-              future: 1,
-              appearance: { primaryColorLight: '#111111' },
-            },
-          }),
-        },
-      });
+    it('rejects appearance, which is not available', async () => {
+      const { service, publicSpaceRepo } = makeService();
 
-      await service.publish({
-        space: { id: SPACE_ID, workspaceId: WORKSPACE_ID } as any,
-        workspace: makeWorkspace(optInSettings),
-        authUserId: 'u1',
-        enabled: true,
-        appearance: { primaryColorDark: '#222222' },
-      });
-
-      expect(publicSpaceRepo.upsert).toHaveBeenCalledWith(
-        expect.objectContaining({
-          settings: {
-            future: 1,
-            appearance: {
-              primaryColorLight: '#111111',
-              primaryColorDark: '#222222',
-            },
-          },
+      await expect(
+        service.publish({
+          space: { id: SPACE_ID, workspaceId: WORKSPACE_ID } as any,
+          workspace: makeWorkspace(optInSettings),
+          authUserId: 'u1',
+          enabled: true,
+          appearance: { primaryColorLight: '#111111' },
         }),
-      );
-    });
+      ).rejects.toBeInstanceOf(ForbiddenException);
 
-    it('deletes an appearance key when its value is null', async () => {
-      const { service, publicSpaceRepo } = makeService({
-        publicSpaceRepo: {
-          findBySpaceId: jest.fn().mockResolvedValue({
-            id: 'ps1',
-            spaceId: SPACE_ID,
-            enabled: true,
-            searchIndexing: false,
-            settings: {
-              appearance: {
-                primaryColorLight: '#111111',
-                primaryColorDark: '#222222',
-              },
-            },
-          }),
-        },
-      });
-
-      await service.publish({
-        space: { id: SPACE_ID, workspaceId: WORKSPACE_ID } as any,
-        workspace: makeWorkspace(optInSettings),
-        authUserId: 'u1',
-        enabled: true,
-        appearance: { primaryColorLight: null },
-      });
-
-      expect(publicSpaceRepo.upsert.mock.calls[0][0].settings).toEqual({
-        appearance: { primaryColorDark: '#222222' },
-      });
+      expect(publicSpaceRepo.upsert).not.toHaveBeenCalled();
     });
 
     it('passes settings undefined when appearance is omitted', async () => {
@@ -506,122 +446,35 @@ describe('PublicSpaceService', () => {
 
       expect(publicSpaceRepo.upsert.mock.calls[0][0].settings).toBeUndefined();
     });
-
-    it('rejects appearance when the workspace lacks the license feature', async () => {
-      const { service, publicSpaceRepo } = makeService({
-        licenseCheckService: { resolveFeatures: jest.fn().mockReturnValue([]) },
-      });
-
-      await expect(
-        service.publish({
-          space: { id: SPACE_ID, workspaceId: WORKSPACE_ID } as any,
-          workspace: makeWorkspace(optInSettings),
-          authUserId: 'u1',
-          enabled: true,
-          appearance: { primaryColorLight: '#111111' },
-        }),
-      ).rejects.toBeInstanceOf(ForbiddenException);
-
-      expect(publicSpaceRepo.upsert).not.toHaveBeenCalled();
-    });
   });
 
   describe('public appearance exposure', () => {
-    const storedSettings = {
-      future: 1,
-      appearance: {
-        primaryColorLight: '#111111',
-        primaryColorDark: '#222222',
-        internal: 'secret',
-      },
-    };
-    const publicAppearance = {
-      primaryColorLight: '#111111',
-      primaryColorDark: '#222222',
-    };
     const publicSpaceRepoWithSettings = {
       findBySpaceId: jest.fn().mockResolvedValue({
         id: 'ps1',
         spaceId: SPACE_ID,
         enabled: true,
         searchIndexing: false,
-        settings: storedSettings,
+        settings: {
+          appearance: { primaryColorLight: '#111111' },
+        },
       }),
     };
 
-    it('whitelists appearance on getPublicSpaceInfo', async () => {
+    it('never exposes stored appearance or raw settings', async () => {
       const { service } = makeService({
         publicSpaceRepo: publicSpaceRepoWithSettings,
       });
-      const result = await service.getPublicSpaceInfo(
-        'handbook',
-        makeWorkspace(optInSettings),
-      );
-      expect(result.appearance).toEqual(publicAppearance);
-      expect(result).not.toHaveProperty('settings');
-    });
+      const ws = makeWorkspace(optInSettings);
 
-    it('whitelists appearance on getPublicSpaceTree', async () => {
-      const { service } = makeService({
-        publicSpaceRepo: publicSpaceRepoWithSettings,
-      });
-      const result = await service.getPublicSpaceTree(
-        'handbook',
-        makeWorkspace(optInSettings),
-      );
-      expect(result.appearance).toEqual(publicAppearance);
-      expect(result).not.toHaveProperty('settings');
-    });
+      const info = await service.getPublicSpaceInfo('handbook', ws);
+      const tree = await service.getPublicSpaceTree('handbook', ws);
+      const page = await service.getPublicPage('handbook', 'abc123XYZ0', ws);
 
-    it('whitelists appearance on the served page response', async () => {
-      const { service } = makeService({
-        publicSpaceRepo: publicSpaceRepoWithSettings,
-      });
-      const result = await service.getPublicPage(
-        'handbook',
-        'abc123XYZ0',
-        makeWorkspace(optInSettings),
-      );
-      expect(result.appearance).toEqual(publicAppearance);
-      expect(result).not.toHaveProperty('settings');
-    });
-
-    it('whitelists appearance on the empty-space page response', async () => {
-      const { service } = makeService({
-        publicSpaceRepo: publicSpaceRepoWithSettings,
-        pageRepo: {
-          getFirstUnrestrictedRootPage: jest.fn().mockResolvedValue(undefined),
-        },
-      });
-      const result = await service.getPublicPage(
-        'handbook',
-        undefined,
-        makeWorkspace(optInSettings),
-      );
-      expect(result.page).toBeNull();
-      expect(result.appearance).toEqual(publicAppearance);
-      expect(result).not.toHaveProperty('settings');
-    });
-
-    it('strips appearance when the workspace lacks the license feature', async () => {
-      const { service } = makeService({
-        publicSpaceRepo: publicSpaceRepoWithSettings,
-        licenseCheckService: { resolveFeatures: jest.fn().mockReturnValue([]) },
-      });
-      const result = await service.getPublicSpaceInfo(
-        'handbook',
-        makeWorkspace(optInSettings),
-      );
-      expect(result.appearance).toBeUndefined();
-    });
-
-    it('omits appearance when none is stored', async () => {
-      const { service } = makeService();
-      const result = await service.getPublicSpaceInfo(
-        'handbook',
-        makeWorkspace(optInSettings),
-      );
-      expect(result.appearance ?? {}).toEqual({});
+      for (const result of [info, tree, page] as any[]) {
+        expect(result.appearance).toBeUndefined();
+        expect(result).not.toHaveProperty('settings');
+      }
     });
   });
 

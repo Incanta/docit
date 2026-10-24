@@ -1,5 +1,4 @@
 import { Logger, OnModuleDestroy } from '@nestjs/common';
-import { ModuleRef } from '@nestjs/core';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { InjectKysely } from 'nestjs-kysely';
@@ -35,7 +34,6 @@ export class NotificationProcessor
     private readonly pageNotificationService: PageNotificationService,
     private readonly verificationNotificationService: VerificationNotificationService,
     private readonly domainService: DomainService,
-    private readonly moduleRef: ModuleRef,
     @InjectKysely() private readonly db: KyselyDB,
   ) {
     super();
@@ -59,7 +57,7 @@ export class NotificationProcessor
   ): Promise<void> {
     try {
       if (job.name === QueueJob.VERIFICATION_RECONCILE) {
-        await this.runVerificationReconcile();
+        // Page verification scheduling is not part of DocIt.
         return;
       }
 
@@ -182,33 +180,6 @@ export class NotificationProcessor
       return row?.workspaceId;
     }
     return (job.data as { workspaceId?: string }).workspaceId;
-  }
-
-  private async runVerificationReconcile(): Promise<void> {
-    let eeModule: { PageVerificationSchedulerService?: unknown };
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      eeModule = require('../../ee/page-verification/page-verification-scheduler.service');
-    } catch {
-      this.logger.debug(
-        'VERIFICATION_RECONCILE fired but EE scheduler not bundled in this build',
-      );
-      return;
-    }
-
-    const schedulerClass = eeModule.PageVerificationSchedulerService as
-      | (new (...args: unknown[]) => { reconcile(): Promise<void> })
-      | undefined;
-    if (!schedulerClass) return;
-
-    const scheduler = this.moduleRef.get(schedulerClass, { strict: false });
-    if (!scheduler) {
-      this.logger.warn(
-        'VERIFICATION_RECONCILE fired but scheduler service not resolvable',
-      );
-      return;
-    }
-    await scheduler.reconcile();
   }
 
   private async getWorkspaceUrl(workspaceId: string): Promise<string> {

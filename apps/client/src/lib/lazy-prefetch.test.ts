@@ -191,8 +191,6 @@ describe("lazy prefetch", () => {
     "/share/p/roadmap",
     "/docs",
     "/docs/handbook/intro",
-    "/pdf-render/0199a1b2",
-    "/oauth/consent",
   ])("does nothing on %s", async (path) => {
     const { lazyWithPrefetch, prefetchLazyComponents } = await freshModule();
     window.history.pushState({}, "", path);

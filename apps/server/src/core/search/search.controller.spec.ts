@@ -21,9 +21,6 @@ describe('SearchController', () => {
 describe('SearchController public-space-search gate', () => {
   function makeController(overrides: any = {}) {
     const searchService = { searchPage: jest.fn().mockResolvedValue([]) };
-    const environmentService = {
-      getSearchDriver: jest.fn().mockReturnValue('postgres'),
-    };
     const publicSpaceService = {
       getPublicSpace: jest
         .fn()
@@ -38,10 +35,8 @@ describe('SearchController public-space-search gate', () => {
     const controller = new SearchController(
       searchService as any,
       {} as any,
-      environmentService as any,
       publicSpaceService as any,
       pageRepo as any,
-      {} as any,
     );
     return { controller, searchService, publicSpaceService, pageRepo };
   }

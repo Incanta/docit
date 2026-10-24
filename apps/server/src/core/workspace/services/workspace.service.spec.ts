@@ -43,7 +43,6 @@ function buildService() {
     {} as any,
     {} as any,
     {} as any,
-    {} as any,
     repoDeletingByUser() as any,
     repoDeletingByUser() as any,
     db as any,

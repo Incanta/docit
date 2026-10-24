@@ -13,7 +13,6 @@ import {
 } from "@/features/public-space/queries/public-space-query.ts";
 import { getAppUrl } from "@/lib/config.ts";
 import CopyTextButton from "@/components/common/copy.tsx";
-import AppearanceSettings from "@/features/public-space/components/appearance-settings.tsx";
 import { isPublicSpacesAllowed } from "@/features/public-space/utils/public-space-access.ts";
 
 type PublishSpaceSettingsProps = {
@@ -271,11 +270,6 @@ export default function PublishSpaceSettings({
           <Text size="sm" c="dimmed" mt="xs">
             {t("Renaming the space slug will break public links.")}
           </Text>
-
-          <AppearanceSettings
-            spaceId={space.id}
-            appearance={publicSpace?.settings?.appearance}
-          />
         </>
       )}
     </div>

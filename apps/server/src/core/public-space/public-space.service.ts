@@ -17,9 +17,7 @@ import {
   Workspace,
 } from '@docmost/db/types/entity.types';
 import { PublicSpaceAppearanceDto } from './dto/public-space.dto';
-import { LicenseCheckService } from '../../integrations/environment/license-check.service';
 import { EnvironmentService } from '../../integrations/environment/environment.service';
-import { Feature, FeatureKey } from '../../common/features';
 
 @Injectable()
 export class PublicSpaceService {
@@ -30,15 +28,8 @@ export class PublicSpaceService {
     private readonly pagePermissionRepo: PagePermissionRepo,
     private readonly shareService: ShareService,
     private readonly transclusionService: TransclusionService,
-    private readonly licenseCheckService: LicenseCheckService,
     private readonly environmentService: EnvironmentService,
   ) {}
-
-  hasFeature(workspace: Workspace, feature: FeatureKey): boolean {
-    return this.licenseCheckService
-      .resolveFeatures(workspace.licenseKey, workspace.plan)
-      .includes(feature);
-  }
 
   isPublicSpacesAllowed(workspace: Workspace): boolean {
     const settings = workspace.settings as any;
@@ -78,7 +69,6 @@ export class PublicSpaceService {
     return {
       space: this.toPublicSpaceFields(space),
       searchIndexing: publicSpace.searchIndexing,
-      appearance: this.toPublicAppearance(publicSpace, workspace),
     };
   }
 
@@ -93,7 +83,6 @@ export class PublicSpaceService {
     return {
       space: this.toPublicSpaceFields(space),
       pageTree,
-      appearance: this.toPublicAppearance(publicSpace, workspace),
     };
   }
 
@@ -121,7 +110,6 @@ export class PublicSpaceService {
           page: null,
           space: this.toPublicSpaceFields(space),
           searchIndexing: publicSpace.searchIndexing,
-          appearance: this.toPublicAppearance(publicSpace, workspace),
           byline,
         };
       }
@@ -167,7 +155,6 @@ export class PublicSpaceService {
       page,
       space: this.toPublicSpaceFields(space),
       searchIndexing: publicSpace.searchIndexing,
-      appearance: this.toPublicAppearance(publicSpace, workspace),
       byline,
     };
   }
@@ -195,7 +182,6 @@ export class PublicSpaceService {
       page,
       space: this.toPublicSpaceFields(space),
       searchIndexing: publicSpace.searchIndexing,
-      appearance: this.toPublicAppearance(publicSpace, workspace),
       byline: this.getBylineSettings(publicSpace),
     };
   }
@@ -274,10 +260,8 @@ export class PublicSpaceService {
       );
     }
 
-    if (appearance && !this.hasFeature(workspace, Feature.PUBLIC_SPACE_APPEARANCE)) {
-      throw new ForbiddenException(
-        'Public docs appearance requires a paid license',
-      );
+    if (appearance) {
+      throw new ForbiddenException('Public docs appearance is not available');
     }
 
     const prev = await this.publicSpaceRepo.findBySpaceId(space.id);
@@ -295,7 +279,7 @@ export class PublicSpaceService {
       typeof bylineUpdatedAt !== 'undefined';
 
     let settings: Record<string, unknown> | undefined;
-    if (appearance || hasByline || typeof directory !== 'undefined') {
+    if (hasByline || typeof directory !== 'undefined') {
       const prevSettings = (prev?.settings as Record<string, any>) ?? {};
       settings = { ...prevSettings };
 
@@ -303,17 +287,6 @@ export class PublicSpaceService {
         settings.directory = directory;
       }
 
-      if (appearance) {
-        const nextAppearance: Record<string, string> = {
-          ...(prevSettings.appearance ?? {}),
-        };
-        for (const key of ['primaryColorLight', 'primaryColorDark'] as const) {
-          const value = appearance[key];
-          if (value === null) delete nextAppearance[key];
-          else if (typeof value !== 'undefined') nextAppearance[key] = value;
-        }
-        settings.appearance = nextAppearance;
-      }
 
       if (hasByline) {
         const prevByline = this.getBylineSettings(prev);
@@ -378,20 +351,4 @@ export class PublicSpaceService {
     };
   }
 
-  private toPublicAppearance(publicSpace: PublicSpace, workspace: Workspace) {
-    if (!this.hasFeature(workspace, Feature.PUBLIC_SPACE_APPEARANCE)) {
-      return undefined;
-    }
-    const appearance = (publicSpace?.settings as any)?.appearance;
-    if (!appearance) return undefined;
-    const result: { primaryColorLight?: string; primaryColorDark?: string } =
-      {};
-    if (typeof appearance.primaryColorLight === 'string') {
-      result.primaryColorLight = appearance.primaryColorLight;
-    }
-    if (typeof appearance.primaryColorDark === 'string') {
-      result.primaryColorDark = appearance.primaryColorDark;
-    }
-    return Object.keys(result).length > 0 ? result : undefined;
-  }
 }

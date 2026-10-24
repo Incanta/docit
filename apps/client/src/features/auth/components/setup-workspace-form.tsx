@@ -9,16 +9,11 @@ import {
   Button,
   PasswordInput,
   Box,
-  Anchor,
-  Text,
 } from "@mantine/core";
 import useAuth from "@/features/auth/hooks/use-auth";
 import classes from "@/features/auth/components/auth.module.css";
 import { useTranslation } from "react-i18next";
-import SsoCloudSignup from "@/ee/components/sso-cloud-signup.tsx";
 import { isCloud } from "@/lib/config.ts";
-import { Link } from "react-router-dom";
-import APP_ROUTE from "@/lib/app-route.ts";
 import { AuthLayout } from "./auth-layout.tsx";
 
 const formSchema = z.object({
@@ -57,8 +52,6 @@ export function SetupWorkspaceForm() {
           <Title order={2} ta="center" fw={500} mb="md">
             {t("Create workspace")}
           </Title>
-
-          {isCloud() && <SsoCloudSignup />}
 
           <form onSubmit={form.onSubmit(onSubmit)}>
             {!isCloud() && (
@@ -111,18 +104,6 @@ export function SetupWorkspaceForm() {
           </form>
         </Box>
       </Container>
-      {isCloud() && (
-        <Text ta="center">
-          {t("Already part of an existing workspace?")}{" "}
-          <Anchor
-            component={Link}
-            to={APP_ROUTE.AUTH.SELECT_WORKSPACE}
-            fw={500}
-          >
-            {t("Sign-in")}
-          </Anchor>
-        </Text>
-      )}
     </AuthLayout>
   );
 }

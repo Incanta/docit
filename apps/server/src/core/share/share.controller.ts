@@ -29,7 +29,6 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Public } from '../../common/decorators/public.decorator';
 import { ShareRepo } from '@docmost/db/repos/share/share.repo';
 import { PaginationOptions } from '@docmost/db/pagination/pagination-options';
-import { LicenseCheckService } from '../../integrations/environment/license-check.service';
 import { AuditEvent, AuditResource } from '../../common/events/audit-events';
 import {
   AUDIT_SERVICE,
@@ -45,7 +44,6 @@ export class ShareController {
     private readonly pageRepo: PageRepo,
     private readonly pagePermissionRepo: PagePermissionRepo,
     private readonly pageAccessService: PageAccessService,
-    private readonly licenseCheckService: LicenseCheckService,
     @Inject(AUDIT_SERVICE) private readonly auditService: IAuditService,
   ) {}
 
@@ -81,10 +79,7 @@ export class ShareController {
 
     return {
       ...shareData,
-      features: this.licenseCheckService.resolveFeatures(
-        workspace.licenseKey,
-        workspace.plan,
-      ),
+      features: [],
     };
   }
 
@@ -272,10 +267,7 @@ export class ShareController {
 
     return {
       ...treeData,
-      features: this.licenseCheckService.resolveFeatures(
-        workspace.licenseKey,
-        workspace.plan,
-      ),
+      features: [],
     };
   }
 }

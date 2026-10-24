@@ -15,7 +15,6 @@ export type IntegrationDefinition = {
   icon: string;
   capabilities: IntegrationCapability[];
   oauth?: OAuthConfig;
-  requiresFeature?: string;
 };
 
 export type Integration = {
