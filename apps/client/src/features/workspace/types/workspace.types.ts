@@ -29,6 +29,7 @@ export interface IWorkspace {
   aiChatWorkspaceKnowledgeOnly?: boolean;
   enforceMcpOauth?: boolean;
   trashRetentionDays?: number;
+  auditRetentionDays?: number | null;
   restrictApiToAdmins?: boolean;
   allowMemberTemplates?: boolean;
   allowPersonalSpaces?: boolean;
