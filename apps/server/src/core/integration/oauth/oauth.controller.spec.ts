@@ -31,6 +31,7 @@ import { UserRepo } from '@docmost/db/repos/user/user.repo';
 import { WorkspaceRepo } from '@docmost/db/repos/workspace/workspace.repo';
 import { UserSessionRepo } from '@docmost/db/repos/session/user-session.repo';
 import { SessionActivityService } from '../../session/session-activity.service';
+import { ApiKeyService } from '../../api-key/api-key.service';
 
 const workspace = { id: 'workspace-1' } as Workspace;
 const encryptionService = new EncryptionService({
@@ -520,6 +521,7 @@ describe('OAuthController complete without a session', () => {
           WorkspaceRepo,
           UserSessionRepo,
           SessionActivityService,
+          ApiKeyService,
         ].map((provide) => ({ provide, useValue: {} })),
       ],
     }).compile();
