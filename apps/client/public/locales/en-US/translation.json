@@ -1699,5 +1699,11 @@
   "Casual": "Casual",
   "Friendly": "Friendly",
   "Confident": "Confident",
-  "Write or edit with AI.": "Write or edit with AI."
+  "Write or edit with AI.": "Write or edit with AI.",
+  "Back to results": "Back to results",
+  "AI answer": "AI answer",
+  "Reading {{count}} pages...": "Reading {{count}} pages...",
+  "Searching the knowledge base...": "Searching the knowledge base...",
+  "AI answers can be wrong. Check the sources.": "AI answers can be wrong. Check the sources.",
+  "See search results": "See search results"
 }

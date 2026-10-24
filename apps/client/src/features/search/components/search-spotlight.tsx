@@ -1,10 +1,12 @@
 import { Spotlight } from "@mantine/spotlight";
-import { IconSearch } from "@tabler/icons-react";
+import { IconSearch, IconSparkles } from "@tabler/icons-react";
 import { Group, VisuallyHidden, Text } from "@mantine/core";
 import React, { useState, useMemo, useCallback } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
-import { searchSpotlightStore } from "../constants.ts";
+import { searchSpotlight, searchSpotlightStore } from "../constants.ts";
+import { useAiStatusQuery } from "@/features/ai/queries/ai-query.ts";
+import { AiAnswerPanel } from "@/features/ai/components/ai-answer-panel.tsx";
 import { SearchSpotlightFilters } from "./search-spotlight-filters.tsx";
 import { useUnifiedSearch } from "../hooks/use-unified-search.ts";
 import { SearchResultItem } from "./search-result-item.tsx";
@@ -16,6 +18,9 @@ export function SearchSpotlight({ spaceId }: SearchSpotlightProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [debouncedSearchQuery] = useDebouncedValue(query, 300);
+  const [aiQuestion, setAiQuestion] = useState<string | null>(null);
+  const { data: aiStatus } = useAiStatusQuery();
+  const aiAnswers = aiStatus?.answers === true;
   const [filters, setFilters] = useState<{
     spaceId?: string | null;
     creatorId?: string | null;
@@ -74,7 +79,11 @@ export function SearchSpotlight({ spaceId }: SearchSpotlightProps) {
         maxHeight={600}
         store={searchSpotlightStore}
         query={query}
-        onQueryChange={setQuery}
+        onQueryChange={(value) => {
+          setQuery(value);
+          setAiQuestion(null);
+        }}
+        onSpotlightClose={() => setAiQuestion(null)}
         scrollable
         overlayProps={{
           backgroundOpacity: 0.55,
@@ -108,7 +117,32 @@ export function SearchSpotlight({ spaceId }: SearchSpotlightProps) {
             : ""}
         </VisuallyHidden>
 
+        {aiQuestion ? (
+          <AiAnswerPanel
+            question={aiQuestion}
+            spaceId={filters.spaceId ?? undefined}
+            onBack={() => setAiQuestion(null)}
+            onNavigate={() => searchSpotlight.close()}
+          />
+        ) : (
         <Spotlight.ActionsList>
+          {aiAnswers && query.trim().length > 2 && (
+            <Spotlight.Action
+              onClick={() => setAiQuestion(query.trim())}
+              closeSpotlightOnTrigger={false}
+            >
+              <Group wrap="nowrap" gap="sm">
+                <IconSparkles
+                  size={18}
+                  color="var(--mantine-color-violet-6)"
+                />
+                <Text size="sm" truncate>
+                  {t("Ask AI")}: <b>{query.trim()}</b>
+                </Text>
+              </Group>
+            </Spotlight.Action>
+          )}
+
           {query.length === 0 && !isFilterBrowse && resultItems.length === 0 && (
             <Spotlight.Empty>{t("Start typing to search...")}</Spotlight.Empty>
           )}
@@ -132,6 +166,7 @@ export function SearchSpotlight({ spaceId }: SearchSpotlightProps) {
             </Spotlight.Empty>
           )}
         </Spotlight.ActionsList>
+        )}
       </Spotlight.Root>
     </>
   );

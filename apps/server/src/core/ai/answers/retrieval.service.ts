@@ -79,7 +79,11 @@ export class RetrievalService {
           limit: 30,
         });
         usedVectors = matches.length > 0;
-        for (const m of matches) {
+        // Nearest neighbours always return something; drop weak matches
+        // relative to the best one so unrelated pages are not cited.
+        const top = matches[0]?.score ?? 0;
+        const relevant = matches.filter((m) => m.score >= top * 0.8);
+        for (const m of relevant) {
           add(m.pageId, m.text, m.score, m.attachmentId ?? undefined);
         }
       }
