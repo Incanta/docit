@@ -16,7 +16,8 @@ permissions:
 
 env:
   VERSION: ${{ inputs.version || github.ref_name }}
-  IMAGE: ghcr.io/${{ github.repository }}
+  # Must be lowercase; github.repository keeps the org's capital letters.
+  IMAGE: ghcr.io/incanta/docit
 
 jobs:
   build:
