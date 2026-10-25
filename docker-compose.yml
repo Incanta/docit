@@ -1,6 +1,6 @@
 services:
   docmost:
-    image: docmost/docmost:latest
+    image: ghcr.io/incanta/docit:latest
     depends_on:
       - db
       - redis
