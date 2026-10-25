@@ -5,7 +5,12 @@ export type AiProviderId =
   | "ollama"
   | "openai-compatible";
 
-export type AiAuthMode = "api_key" | "env" | "anthropic_cli" | "none";
+export type AiAuthMode =
+  | "api_key"
+  | "env"
+  | "anthropic_cli"
+  | "claude_subscription"
+  | "none";
 
 export interface IAiProviderInfo {
   label: string;

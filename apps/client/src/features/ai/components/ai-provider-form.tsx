@@ -36,6 +36,7 @@ const AUTH_LABELS: Record<AiAuthMode, string> = {
   api_key: "API key",
   env: "Server environment variables",
   anthropic_cli: "Anthropic CLI login on the server (no stored key)",
+  claude_subscription: "Claude subscription via the Agent SDK (no stored key)",
   none: "No authentication (local server)",
 };
 
@@ -217,6 +218,23 @@ export default function AiProviderForm({ data }: Props) {
           <Text size="xs" c="dimmed" mt={6}>
             {t(
               "Set ANTHROPIC_CLI_PATH if the ant binary is not on PATH. Usage is billed to the Anthropic Console account you sign in with.",
+            )}
+          </Text>
+        </Alert>
+      )}
+      {opts.authMode === "claude_subscription" && (
+        <Alert variant="light" icon={<IconInfoCircle />}>
+          <Text size="sm">
+            {t(
+              "DocIt runs requests through the Claude Agent SDK with your own Claude plan. Sign in to Claude Code on the server as the user DocIt runs as, or create a token and set it as CLAUDE_CODE_OAUTH_TOKEN in the server environment:",
+            )}
+          </Text>
+          <Code block mt={6}>
+            claude setup-token
+          </Code>
+          <Text size="xs" c="dimmed" mt={6}>
+            {t(
+              "Requests count against your plan's usage limits, so use this only on an instance you run for yourself. Claude gets no tools or file access. Use model names like sonnet, opus, or a full model ID.",
             )}
           </Text>
         </Alert>

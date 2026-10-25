@@ -12,9 +12,16 @@ export type AiProviderId =
  *   ANTHROPIC_API_KEY / ANTHROPIC_AUTH_TOKEN, GEMINI_API_KEY)
  * - anthropic_cli: short-lived tokens from the Anthropic CLI profile on the
  *   server (`ant auth login`), so no key is stored anywhere in DocIt
+ * - claude_subscription: the Claude Agent SDK, signed in through Claude
+ *   Code on the server with the instance owner's own Claude plan
  * - none: local servers that need no credentials (Ollama, LM Studio, vLLM)
  */
-export type AiAuthMode = 'api_key' | 'env' | 'anthropic_cli' | 'none';
+export type AiAuthMode =
+  | 'api_key'
+  | 'env'
+  | 'anthropic_cli'
+  | 'claude_subscription'
+  | 'none';
 
 export type AiProviderInfo = {
   label: string;
@@ -29,7 +36,7 @@ export type AiProviderInfo = {
 export const AI_PROVIDERS: Record<AiProviderId, AiProviderInfo> = {
   anthropic: {
     label: 'Anthropic',
-    authModes: ['api_key', 'anthropic_cli', 'env'],
+    authModes: ['api_key', 'anthropic_cli', 'claude_subscription', 'env'],
     supportsEmbeddings: false,
     needsBaseUrl: false,
     suggestedChatModels: [

@@ -13,6 +13,7 @@ import {
   EncryptionService,
 } from '../../../integrations/encryption/encryption.service';
 import { getAnthropicCliToken } from './anthropic-cli-token';
+import { createClaudeAgentModel } from './claude-agent-sdk';
 import {
   AI_PROVIDERS,
   AiAuthMode,
@@ -221,6 +222,9 @@ export class AiProviderService {
   }
 
   async chatModelFor(c: Credentials & { model: string }): Promise<LanguageModel> {
+    if (c.provider === 'anthropic' && c.authMode === 'claude_subscription') {
+      return createClaudeAgentModel(c.model);
+    }
     const provider = await this.createProvider(c);
     return provider.languageModel
       ? provider.languageModel(c.model)

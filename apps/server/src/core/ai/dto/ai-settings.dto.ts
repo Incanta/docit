@@ -11,7 +11,13 @@ import {
 } from 'class-validator';
 
 const PROVIDERS = ['openai', 'anthropic', 'google', 'ollama', 'openai-compatible'];
-const AUTH_MODES = ['api_key', 'env', 'anthropic_cli', 'none'];
+const AUTH_MODES = [
+  'api_key',
+  'env',
+  'anthropic_cli',
+  'claude_subscription',
+  'none',
+];
 
 export class UpdateAiSettingsDto {
   @IsIn(PROVIDERS)
