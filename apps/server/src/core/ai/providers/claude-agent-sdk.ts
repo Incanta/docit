@@ -57,6 +57,8 @@ export async function createClaudeAgentModel(model: string): Promise<LanguageMod
       maxTurns: 1,
       persistSession: false,
       verbatimPrompts: true,
+      // No skills or slash commands either (they'd need tools anyway).
+      extraArgs: { 'disable-slash-commands': null },
       cwd: emptyWorkDir(),
       pathToClaudeCodeExecutable: process.env.CLAUDE_CODE_PATH || undefined,
       // Use the subscription login, not an API key that happens to be in
