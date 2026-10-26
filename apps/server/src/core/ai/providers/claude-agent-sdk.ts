@@ -24,6 +24,31 @@ function emptyWorkDir(): string {
 }
 
 /**
+ * Overrides for the Claude Code subprocess environment. The SDK wrapper
+ * inherits an allowlist that includes every ANTHROPIC_*, CLAUDE_*, AWS_*, and
+ * GOOGLE_* variable; a subscription session needs none of them except its
+ * login, so the rest are removed (DocIt's S3 keys are AWS_S3_*).
+ */
+export function subprocessEnv(
+  source: NodeJS.ProcessEnv = process.env,
+): Record<string, string | undefined> {
+  const keep = new Set(['CLAUDE_CONFIG_DIR', 'CLAUDE_CODE_OAUTH_TOKEN']);
+  const env: Record<string, string | undefined> = {};
+  for (const key of Object.keys(source)) {
+    if (/^(ANTHROPIC_|CLAUDE_|AWS_|GOOGLE_)/.test(key) && !keep.has(key)) {
+      env[key] = undefined;
+    }
+  }
+  // Always use the plan, even if these appear later.
+  env.ANTHROPIC_API_KEY = undefined;
+  env.ANTHROPIC_AUTH_TOKEN = undefined;
+  env.ANTHROPIC_BASE_URL = undefined;
+  // Don't attach the account's claude.ai connectors.
+  env.ENABLE_CLAUDEAI_MCP_SERVERS = 'false';
+  return env;
+}
+
+/**
  * A language model that runs through the Claude Agent SDK, which uses the
  * Claude Code login of the account DocIt runs as. Sign-in happens in Claude
  * Code itself (`claude` then /login, or CLAUDE_CODE_OAUTH_TOKEN from
@@ -63,13 +88,7 @@ export async function createClaudeAgentModel(model: string): Promise<LanguageMod
       pathToClaudeCodeExecutable: process.env.CLAUDE_CODE_PATH || undefined,
       // Use the subscription login, not an API key that happens to be in
       // the server environment for another provider mode.
-      env: {
-        ANTHROPIC_API_KEY: undefined,
-        ANTHROPIC_AUTH_TOKEN: undefined,
-        ANTHROPIC_BASE_URL: undefined,
-        // Don't attach the account's claude.ai connectors.
-        ENABLE_CLAUDEAI_MCP_SERVERS: 'false',
-      },
+      env: subprocessEnv(),
       logger: {
         debug: (msg: string) => logger.debug(msg),
         info: (msg: string) => logger.debug(msg),

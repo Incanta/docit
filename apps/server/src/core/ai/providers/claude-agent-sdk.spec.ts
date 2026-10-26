@@ -4,7 +4,35 @@ jest.mock('ai-sdk-provider-claude-code', () => ({ createClaudeCode }), {
   virtual: true,
 });
 
-import { createClaudeAgentModel } from './claude-agent-sdk';
+import { createClaudeAgentModel, subprocessEnv } from './claude-agent-sdk';
+
+describe('subprocessEnv', () => {
+  it('strips inherited cloud and API credentials but keeps the login', () => {
+    const env = subprocessEnv({
+      AWS_S3_ACCESS_KEY_ID: 'a',
+      AWS_S3_SECRET_ACCESS_KEY: 'b',
+      GOOGLE_CLIENT_SECRET: 'c',
+      ANTHROPIC_MODEL: 'd',
+      CLAUDE_CODE_USE_BEDROCK: '1',
+      CLAUDE_CONFIG_DIR: '/app/data/claude',
+      CLAUDE_CODE_OAUTH_TOKEN: 'token',
+      APP_SECRET: 'not inherited by the SDK wrapper anyway',
+    });
+    for (const key of [
+      'AWS_S3_ACCESS_KEY_ID',
+      'AWS_S3_SECRET_ACCESS_KEY',
+      'GOOGLE_CLIENT_SECRET',
+      'ANTHROPIC_MODEL',
+      'CLAUDE_CODE_USE_BEDROCK',
+      'ANTHROPIC_API_KEY',
+    ]) {
+      expect(env).toHaveProperty(key, undefined);
+    }
+    expect(env).not.toHaveProperty('CLAUDE_CONFIG_DIR');
+    expect(env).not.toHaveProperty('CLAUDE_CODE_OAUTH_TOKEN');
+    expect(env).not.toHaveProperty('APP_SECRET');
+  });
+});
 
 describe('createClaudeAgentModel', () => {
   beforeEach(() => {

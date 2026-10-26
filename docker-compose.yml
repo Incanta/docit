@@ -9,11 +9,22 @@ services:
       APP_SECRET: 'REPLACE_WITH_LONG_SECRET'
       DATABASE_URL: 'postgresql://docmost:STRONG_DB_PASSWORD@db:5432/docmost'
       REDIS_URL: 'redis://redis:6379'
+      # Claude subscription AI (Settings > AI): either mount claude_config
+      # below and run `docker compose exec docmost claude /login` once, or
+      # paste a token from `claude setup-token` here.
+      # CLAUDE_CODE_OAUTH_TOKEN: ''
     ports:
       - "3000:3000"
     restart: unless-stopped
     volumes:
       - docmost:/app/data/storage
+      # - claude_config:/app/data/claude
+      # Temp files, including Claude Code's scratch space (TMPDIR, set in the
+      # Dockerfile). Without this they accumulate in the container's writable
+      # layer, which can fill up with `ENOSPC ... mkdir '/app/data/tmp/claude-1000'`.
+      # Nothing here is worth keeping, so `tmpfs: [/app/data/tmp]` works too if
+      # you would rather spend RAM than disk and have it cleared on restart.
+      # - docit_tmp:/app/data/tmp
 
   db:
     image: postgres:18
@@ -36,3 +47,5 @@ volumes:
   docmost:
   db_data:
   redis_data:
+  # claude_config:
+  # docit_tmp:

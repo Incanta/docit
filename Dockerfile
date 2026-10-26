@@ -55,6 +55,18 @@ RUN pnpm install --frozen-lockfile --prod --filter '!./apps/client' && rm -rf /h
 
 RUN mkdir -p /app/data/storage
 
+# Claude subscription AI: put the Agent SDK's bundled Claude Code binary on
+# PATH (for `claude /login`) and keep its login in a mountable directory.
+# TMPDIR moves temp files (Claude Code writes its scratch to
+# $TMPDIR/claude-<uid>) out of the container's writable layer onto a path
+# that can take a volume or tmpfs.
+RUN mkdir -p /app/data/claude /app/data/tmp /app/bin \
+  && CLAUDE_BIN="$(find /app/node_modules/.pnpm -path '*claude-agent-sdk-linux-*' ! -path '*musl*' -name claude -type f | head -n 1)" \
+  && if [ -n "$CLAUDE_BIN" ]; then ln -s "$CLAUDE_BIN" /app/bin/claude; fi
+ENV PATH="/app/bin:${PATH}" \
+  CLAUDE_CONFIG_DIR=/app/data/claude \
+  TMPDIR=/app/data/tmp
+
 VOLUME ["/app/data/storage"]
 
 EXPOSE 3000
