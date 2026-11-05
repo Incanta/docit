@@ -4084,6 +4084,7 @@ packages:
   '@smithy/core@3.24.3':
     resolution: {integrity: sha512-Ep/7tPamGY8mgESE3LyLKtxJyy6U52WWAqr/3wial47Sj4u3PiIF73AOGI27UyLy9duTkhZbgzodOfLV4TduZg==}
     engines: {node: '>=18.0.0'}
+    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/credential-provider-imds@4.3.3':
     resolution: {integrity: sha512-I2Bti0DKFo2IJyN28ijCsx51BAumEYR4/1yZ1FXyBygy9MqbnMqCev4JPth/MbpRfBSRAX35hITSnAdJRo1u5w==}
@@ -6763,8 +6764,8 @@ packages:
   flatted@3.4.2:
     resolution: {integrity: sha512-PjDse7RzhcPkIJwy5t7KPWQSZ9cAbzQXcafsetQoD7sOJRQlGikNbx7yZp2OotDnJyrDcbyRq3Ttb18iYOqkxA==}
 
-  follow-redirects@1.16.1:
-    resolution: {integrity: sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg==}
+  follow-redirects@1.16.2:
+    resolution: {integrity: sha512-/kVP2U8z596Ia0gwFrwyIeo74ta5aVmSeU1FfAUMAmcEP5EP7zydmag3SLiN64NaRKef3lxsq7i/g7ltJQDGow==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -15542,7 +15543,7 @@ snapshots:
 
   axios@1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2):
     dependencies:
-      follow-redirects: 1.16.1(debug@4.4.3(supports-color@10.2.2))
+      follow-redirects: 1.16.2(debug@4.4.3(supports-color@10.2.2))
       form-data: 4.0.6
       https-proxy-agent: 5.0.1(supports-color@10.2.2)
       proxy-from-env: 2.1.0
@@ -17128,7 +17129,7 @@ snapshots:
 
   flatted@3.4.2: {}
 
-  follow-redirects@1.16.1(debug@4.4.3(supports-color@10.2.2)):
+  follow-redirects@1.16.2(debug@4.4.3(supports-color@10.2.2)):
     optionalDependencies:
       debug: 4.4.3(supports-color@10.2.2)
 
